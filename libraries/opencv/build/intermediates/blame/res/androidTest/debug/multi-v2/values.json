@@ -1,7 +1,11 @@
 {
     "logs": [
         {
-            "outputFile": "/Users/ijin-yeong/Desktop/ARMymaker/libraries/opencv/build/intermediates/incremental/mergeDebugAndroidTestResources/merged.dir/values/values.xml",
+            "outputFile": "D:\\armymaker\\libraries\\opencv\\build\\intermediates\\incremental\\mergeDebugAndroidTestResources\\merged.dir\\values\\values.xml",
+            "map": []
+        },
+        {
+            "outputFile": "D:\\Users\\ijin-yeong\\Desktop\\ARMymaker\\libraries\\opencv\\build\\intermediates\\incremental\\mergeDebugAndroidTestResources\\merged.dir\\values\\values.xml",
             "map": []
         }
     ]
