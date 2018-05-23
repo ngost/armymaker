@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -48,6 +49,7 @@ public class MarkerGenerationFragment1 extends Fragment{
     public String str[] = {"meet","white"};
     ImageView previewImg;
     ImageView iv_view;
+    RatingBar ratingBar;
 
     Context thisContext;
 
@@ -63,6 +65,7 @@ public class MarkerGenerationFragment1 extends Fragment{
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_marker_generation1, container, false);
+        ratingBar = view.findViewById(R.id.ratingbar);
         previewImg = view.findViewById(R.id.preview_img);
         previewImg.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -240,7 +243,7 @@ public class MarkerGenerationFragment1 extends Fragment{
         }
     }
 
-    public String sift(){
+    public double sift(){
         Mat rgba=new Mat();
         Utils.bitmapToMat(inputImage,rgba);
         MatOfKeyPoint keyPoints=new MatOfKeyPoint();
@@ -250,7 +253,8 @@ public class MarkerGenerationFragment1 extends Fragment{
         Utils.matToBitmap(rgba,inputImage);
 //        iv_view.setImageBitmap(inputImage);
         //sift_tv_result.setText("Keypoint 갯수 : " + keyPoints.toArray().length);
-        return keyPoints.toArray().length+"";
+        double image_size = rgba.size().width*rgba.size().height;
+        return keyPoints.toArray().length/image_size;
     }
 
     @Override
@@ -260,7 +264,7 @@ public class MarkerGenerationFragment1 extends Fragment{
         thisContext=activity;
     }
 
-    public class MyAsyncTask extends AsyncTask<String, Void, String> {
+    public class MyAsyncTask extends AsyncTask<Double, Void, Double> {
         MaterialDialog.Builder builder = null;
         MaterialDialog materialDialog = null;
 
@@ -276,15 +280,32 @@ public class MarkerGenerationFragment1 extends Fragment{
         }
 
         @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
+        protected void onPostExecute(Double value) {
+            super.onPostExecute(value);
             materialDialog.dismiss();
             Toast.makeText(thisContext,"유효성 검사가 완료되었습니다.",Toast.LENGTH_SHORT).show();
-            Log.d("asyctask result",s);
+            ratingBar.setVisibility(View.VISIBLE);
+            if(value>0.002){
+                ratingBar.setRating(5);
+            }else if(value>0.0015 && value<0.002)
+            {
+                ratingBar.setRating(4);
+            }else if(value>0.0010 && value<0.0015)
+            {
+                ratingBar.setRating(3);
+            }else if(value>0.0005 && value<0.0010)
+            {
+                ratingBar.setRating(2);
+            }else if(value>0.0001 && value<0.0005)
+            {
+                ratingBar.setRating(1);
+            }
+
+            Log.d("asyctask result",value+"");
         }
 
         @Override
-        protected String doInBackground(String... strings) {
+        protected Double doInBackground(Double... params) {
             return sift();
         }
     }
