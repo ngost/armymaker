@@ -2,29 +2,34 @@ package com.curonsys.army;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
+import org.opencv.android.Utils;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfKeyPoint;
+import org.opencv.features2d.FeatureDetector;
+import org.opencv.features2d.Features2d;
+import org.opencv.imgproc.Imgproc;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.Parameter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -34,7 +39,7 @@ import java.util.Date;
 
 
 
-public class MarkerGenerationFragment extends Fragment{
+public class MarkerGenerationFragment1 extends Fragment{
     private static final int MY_PERMISSION_STORAGE = 1111;
     private static final int REQUEST_TAKE_PHOTO = 2222;
     private static final int REQUEST_TAKE_ALBUM = 3333;
@@ -50,12 +55,14 @@ public class MarkerGenerationFragment extends Fragment{
     Uri imageUri;
     Uri photoURI, albumURI;
     private Bitmap inputImage; // make bitmap from image resource
+    private FeatureDetector detector = FeatureDetector.create(FeatureDetector.SIFT);
+    MyAsyncTask myAsyncTask;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_marker_generation, container, false);
+        View view = inflater.inflate(R.layout.fragment_marker_generation1, container, false);
         previewImg = view.findViewById(R.id.preview_img);
         previewImg.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -102,6 +109,7 @@ public class MarkerGenerationFragment extends Fragment{
                     // 인텐트에 전달할 때는 FileProvier의 Return값인 content://로만!!, providerURI의 값에 카메라 데이터를 넣어 보냄
                     takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,providerURI);
 
+
                     startActivityForResult(takePictureIntent,REQUEST_TAKE_PHOTO);
                 }
             }
@@ -133,6 +141,7 @@ public class MarkerGenerationFragment extends Fragment{
         Intent intent=new Intent(Intent.ACTION_PICK);
         intent.setType("image/*");
         intent.setType(android.provider.MediaStore.Images.Media.CONTENT_TYPE);
+
         startActivityForResult(intent,REQUEST_TAKE_ALBUM);
     }
 
@@ -177,6 +186,10 @@ public class MarkerGenerationFragment extends Fragment{
                         galleryAddPic();
 
                         previewImg.setImageURI(imageUri);
+                        inputImage=MediaStore.Images.Media.getBitmap(thisContext.getContentResolver(),imageUri);
+                        //myAsyncTask = new MyAsyncTask();
+                        //myAsyncTask.execute();
+                        Log.d("camera's uri",imageUri.toString());
                     }catch(Exception e){
                         Log.e("REQUEST_TAKE_PHOTO",e.toString());
                     }
@@ -196,6 +209,7 @@ public class MarkerGenerationFragment extends Fragment{
                             albumURI=Uri.fromFile(albumFile);
                             cropImage();
                             inputImage=MediaStore.Images.Media.getBitmap(thisContext.getContentResolver(),data.getData());
+                            Log.d("album's uri",data.getData().toString());
                         }catch(Exception e){
                             Log.e("TAKE_ALBUM_SINGLE ERROR",e.toString());
                         }
@@ -210,6 +224,8 @@ public class MarkerGenerationFragment extends Fragment{
                     previewImg.setImageURI(albumURI);
                     try{
                         inputImage=MediaStore.Images.Media.getBitmap(thisContext.getContentResolver(),albumURI);
+                        myAsyncTask = new MyAsyncTask();
+                        myAsyncTask.execute();
                     }catch(FileNotFoundException e){
                         // TODO Auto-generated catch block
                         e.printStackTrace();
@@ -224,6 +240,19 @@ public class MarkerGenerationFragment extends Fragment{
         }
     }
 
+    public String sift(){
+        Mat rgba=new Mat();
+        Utils.bitmapToMat(inputImage,rgba);
+        MatOfKeyPoint keyPoints=new MatOfKeyPoint();
+        Imgproc.cvtColor(rgba,rgba,Imgproc.COLOR_RGBA2GRAY);
+        detector.detect(rgba,keyPoints);
+        Features2d.drawKeypoints(rgba,keyPoints,rgba);
+        Utils.matToBitmap(rgba,inputImage);
+//        iv_view.setImageBitmap(inputImage);
+        //sift_tv_result.setText("Keypoint 갯수 : " + keyPoints.toArray().length);
+        return keyPoints.toArray().length+"";
+    }
+
     @Override
     public void onAttach(Activity activity) {
         // TODO Auto-generated method stub
@@ -231,4 +260,32 @@ public class MarkerGenerationFragment extends Fragment{
         thisContext=activity;
     }
 
+    public class MyAsyncTask extends AsyncTask<String, Void, String> {
+        MaterialDialog.Builder builder = null;
+        MaterialDialog materialDialog = null;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            builder = new MaterialDialog.Builder(thisContext)
+                    .title("유효성 검사중")
+                    .content("시간이 조금 걸릴 수 있습니다...")
+                    .progress(true,0);
+            materialDialog = builder.build();
+            materialDialog.show();
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            materialDialog.dismiss();
+            Toast.makeText(thisContext,"유효성 검사가 완료되었습니다.",Toast.LENGTH_SHORT).show();
+            Log.d("asyctask result",s);
+        }
+
+        @Override
+        protected String doInBackground(String... strings) {
+            return sift();
+        }
+    }
 }

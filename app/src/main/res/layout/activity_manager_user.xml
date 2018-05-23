@@ -11,7 +11,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
         <fragment
-            android:name="com.curonsys.army.MarkerGenerationFragment"
+            android:name="com.curonsys.army.MarkerGenerationFragment1"
             android:id="@+id/fragment_simple"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
