@@ -46,6 +46,9 @@ public class MarkerGenerationActivity extends AppCompatActivity {
     private static final int REQUEST_TAKE_ALBUM = 3333;
     private static final int REQUEST_IMAGE_CROP = 4444;
     Button btn1,btn2;
+    double send_longitude;
+    double send_latitude;
+
 
 
     static {
@@ -63,7 +66,7 @@ public class MarkerGenerationActivity extends AppCompatActivity {
         //System.loadLibrary("nonfree");
     }
 
-    Button btn_capture, btn_album, btn_sift;
+    Button btn_capture, btn_album, btn_sift,btn_send;
     ImageView iv_view;
     String mCurrentPhotoPath;
     TextView tv, sift_tv_result;
@@ -92,6 +95,7 @@ public class MarkerGenerationActivity extends AppCompatActivity {
         iv_view = (ImageView) findViewById(R.id.iv_view);
         tv = (TextView) findViewById(R.id.textView2);
         tv.setText("위치정보 미수신중");
+        btn_send = (Button) findViewById(R.id.sendButton);
 
         tb = (ToggleButton) findViewById(R.id.toggle1);
 
@@ -151,11 +155,25 @@ public class MarkerGenerationActivity extends AppCompatActivity {
             }
         });
 
+        btn_send.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    sift();
+                }catch(Exception e)
+                {
+                    Log.e("captureCamera Error", e.toString());
+                }
+            }
+        });
+
+
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.fragment_simple,new MarkerGenerationFragment());
 
     }
+
 
 
 
@@ -170,6 +188,8 @@ public class MarkerGenerationActivity extends AppCompatActivity {
             double altitude = location.getAltitude();   //고도
             float accuracy = location.getAccuracy();    //정확도
             String provider = location.getProvider();   //위치제공자
+            send_longitude = longitude;
+            send_latitude = latitude;
             //Gps 위치제공자에 의한 위치변화. 오차범위가 좁다.
             //Network 위치제공자에 의한 위치변화
             //Network 위치는 Gps에 비해 정확도가 많이 떨어진다.

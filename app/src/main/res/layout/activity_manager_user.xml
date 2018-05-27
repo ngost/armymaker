@@ -57,6 +57,12 @@
             android:textOff="위치정보수신시작"
             android:textOn="위치정보수신종료"/>
 
+        <Button
+            android:id="@+id/sendButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="업로드하기"/>
+
         <ImageView
             android:id="@+id/iv_view"
             android:layout_width="match_parent"
