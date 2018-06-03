@@ -60,5 +60,8 @@ public class MarkerGenerationFragment3 extends Fragment {
         // TODO Auto-generated method stub
         super.onAttach(activity);
         thisContext=activity;
+        //https://www.journaldev.com/10024/android-recyclerview-android-cardview-example-tutorial
+        //step 3는 위의 url을 이용해서 cardview로 구현할 예정임
+        //컨텐츠를 단순하게 선택하는 기능을 가지는 fragment, recyclerview 이용
     }
 }
