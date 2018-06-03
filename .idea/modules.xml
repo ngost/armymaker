@@ -3,13 +3,9 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/ARMymaker.iml" filepath="$PROJECT_DIR$/ARMymaker.iml" />
-      <module fileurl="file://D:\armymaker\ARMymaker.iml" filepath="D:\armymaker\ARMymaker.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://D:\armymaker\app\app.iml" filepath="D:\armymaker\app\app.iml" />
       <module fileurl="file://$PROJECT_DIR$/libraries/libraries.iml" filepath="$PROJECT_DIR$/libraries/libraries.iml" />
-      <module fileurl="file://D:\armymaker\libraries\libraries.iml" filepath="D:\armymaker\libraries\libraries.iml" />
       <module fileurl="file://$PROJECT_DIR$/libraries/opencv/opencv.iml" filepath="$PROJECT_DIR$/libraries/opencv/opencv.iml" />
-      <module fileurl="file://D:\armymaker\libraries\opencv\opencv.iml" filepath="D:\armymaker\libraries\opencv\opencv.iml" />
     </modules>
   </component>
 </project>

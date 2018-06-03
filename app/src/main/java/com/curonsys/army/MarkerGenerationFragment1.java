@@ -2,6 +2,8 @@ package com.curonsys.army;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -10,10 +12,12 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.Toast;
@@ -50,8 +54,10 @@ public class MarkerGenerationFragment1 extends Fragment{
     ImageView previewImg;
     ImageView iv_view;
     RatingBar ratingBar;
+    Button next_btn;
 
     Context thisContext;
+    Activity mActivity;
 
     String mCurrentPhotoPath;
     Uri imageUri;
@@ -60,11 +66,27 @@ public class MarkerGenerationFragment1 extends Fragment{
     private FeatureDetector detector = FeatureDetector.create(FeatureDetector.SIFT);
     MyAsyncTask myAsyncTask;
 
+    static {
+        try {
+            System.loadLibrary("opencv_java");
+        } catch (UnsatisfiedLinkError e) {
+            System.load("opencv_java");
+        }
+        try {
+            System.loadLibrary("nonfree");
+        } catch (UnsatisfiedLinkError e) {
+            System.load("nonfree");
+        }
+        //System.loadLibrary("opencv_java");
+        //System.loadLibrary("nonfree");
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_marker_generation1, container, false);
+        //next_btn = view.findViewById(R.id.next_btn_step1);
         ratingBar = view.findViewById(R.id.ratingbar);
         previewImg = view.findViewById(R.id.preview_img);
         previewImg.setOnClickListener(new View.OnClickListener() {
@@ -87,6 +109,19 @@ public class MarkerGenerationFragment1 extends Fragment{
                         .show();
             }
         });
+
+       // next_btn.setOnClickListener(new View.OnClickListener() {
+       //     @Override
+       //     public void onClick(View v) {
+//                Fragment fragment2 = new MarkerGenerationFragment2();
+//                FragmentManager fragmentManager = getFragmentManager();
+//                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+//                fragmentTransaction.replace(R.id.fragment_simple,fragment2);
+//                fragmentTransaction.addToBackStack(null);
+//                fragmentTransaction.commit();
+   //         }
+    //    });
+
         return view;
     }
 
@@ -262,6 +297,9 @@ public class MarkerGenerationFragment1 extends Fragment{
         // TODO Auto-generated method stub
         super.onAttach(activity);
         thisContext=activity;
+        if(activity.getClass()== MarkerGenerationActivity.class){
+            mActivity = (MarkerGenerationActivity) activity;
+        }
     }
 
     public class MyAsyncTask extends AsyncTask<Double, Void, Double> {
@@ -301,6 +339,9 @@ public class MarkerGenerationFragment1 extends Fragment{
                 ratingBar.setRating(1);
             }
 
+            Button nextStepBtn = mActivity.findViewById(R.id.nextstepBtn);
+            nextStepBtn.setClickable(true);
+            nextStepBtn.setEnabled(true);
             Log.d("asyctask result",value+"");
         }
 
