@@ -1,7 +1,8 @@
-/*
-package com.curonsys.army;
+package com.curonsys.army.Connector;
 
-import android.media.Image;
+/**
+ * Created by Leejuhwan on 2018-06-03.
+ */
 import android.util.Log;
 
 import org.apache.http.HttpEntity;
@@ -14,23 +15,26 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.HttpParams;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
-*/
-/**
- * Created by Administrator on 2017-03-28.
- *//*
+public class JoinConnection {
 
-
-public class mongoConnection {
     private String simpleData, URL;
-    private ArrayList<Double> marker_longitude;
-    private ArrayList<Double> marker_latitude;
-    private ArrayList<Image> marker_image;
+    private ArrayList<String> user_id;
+    private ArrayList<String> m_pw;
+    private ArrayList<String> m_tel;
+    private ArrayList<String> m_email;
+    private ArrayList<String> m_type;
+    private ArrayList<String> m_serial;
+    private ArrayList<String> m_gender;
 
     InputStream is = null;
     HttpClient httpClient;
@@ -38,30 +42,27 @@ public class mongoConnection {
     HttpPost httpPost;
     private int count = 0;
 
-    public mongoConnection(String url, String data) {
-        //this.user_id = new ArrayList<Double>();
+    public JoinConnection(String url, String data) {
+        this.user_id = new ArrayList<String>();
+        this.m_pw = new ArrayList<String>();
+        this.m_tel = new ArrayList<String>();
+        this.m_email = new ArrayList<String>();
+        this.m_type = new ArrayList<String>();
+        this.m_serial = new ArrayList<String>();
+        this.m_gender = new ArrayList<String>();
         this.simpleData = data;
         this.URL = url;
-        this.marker_longitude = new ArrayList<Double>();
-        this.marker_latitude = new ArrayList<Double>();
-        this.marker_image = new ArrayList<Image>();
-
     }
-    //시작포인트
+
     public boolean requestJoin(String mid, String mpw, String mtel, String memail, String mtype, String mserial, String mgender) {
         ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-        nameValuePairs.add(new BasicNameValuePair("MID", marker_longitude));
-        nameValuePairs.add(new BasicNameValuePair("MPW", marker_latitude));
-        nameValuePairs.add(new BasicNameValuePair("MTEL", marker_image));
-        nameValuePairs.add
-
-        */
-/*
+        nameValuePairs.add(new BasicNameValuePair("MID", mid));
+        nameValuePairs.add(new BasicNameValuePair("MPW", mpw));
+        nameValuePairs.add(new BasicNameValuePair("MTEL", mtel));
         nameValuePairs.add(new BasicNameValuePair("MEMAIL", memail));
         nameValuePairs.add(new BasicNameValuePair("MTYPE", mtype));
         nameValuePairs.add(new BasicNameValuePair("MSERIAL", mserial));
-        nameValuePairs.add(new BasicNameValuePair("MGENDER", mgender));*//*
-
+        nameValuePairs.add(new BasicNameValuePair("MGENDER", mgender));
 
         try {
             httpPost = new HttpPost(URL);
@@ -88,16 +89,16 @@ public class mongoConnection {
         return count;
     }
 
-    public String get_marker_longitude(int index) {return marker_longitude.get(index);}
+    public String getUserID(int index) {
+        return user_id.get(index);
+    }
 
-    public String get_marker_latitude(int index)  {return marker_latitude.get(index);}
-
-    public String get_marker_image(int index)     {return marker_image.get(index);}
-
+    public String getPW(int index) {
+        return m_pw.get(index);
+    }
 
     public String getTPYE(int index) {
         return m_type.get(index);
     }
 
 }
-*/
