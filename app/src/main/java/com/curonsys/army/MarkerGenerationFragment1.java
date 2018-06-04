@@ -65,7 +65,7 @@ public class MarkerGenerationFragment1 extends Fragment{
     private Bitmap inputImage; // make bitmap from image resource
     private FeatureDetector detector = FeatureDetector.create(FeatureDetector.SIFT);
     MyAsyncTask myAsyncTask;
-
+    DBManager dbManager = DBManager.getInstance();
     static {
         try {
             System.loadLibrary("opencv_java");
@@ -85,6 +85,9 @@ public class MarkerGenerationFragment1 extends Fragment{
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+
+
+
         View view = inflater.inflate(R.layout.fragment_marker_generation1, container, false);
         //next_btn = view.findViewById(R.id.next_btn_step1);
         ratingBar = view.findViewById(R.id.ratingbar);
@@ -260,6 +263,9 @@ public class MarkerGenerationFragment1 extends Fragment{
 
                     galleryAddPic();
                     previewImg.setImageURI(albumURI);
+                    //image save
+                    dbManager.imageURI = albumURI;
+                    dbManager.generatorId = "admin";
                     try{
                         inputImage=MediaStore.Images.Media.getBitmap(thisContext.getContentResolver(),albumURI);
                         myAsyncTask = new MyAsyncTask();
@@ -321,6 +327,7 @@ public class MarkerGenerationFragment1 extends Fragment{
         protected void onPostExecute(Double value) {
             super.onPostExecute(value);
             materialDialog.dismiss();
+            dbManager.markerRating = value;
             Toast.makeText(thisContext,"유효성 검사가 완료되었습니다.",Toast.LENGTH_SHORT).show();
             ratingBar.setVisibility(View.VISIBLE);
             if(value>0.002){

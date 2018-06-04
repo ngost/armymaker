@@ -1,15 +1,40 @@
 package com.curonsys.army;
 
 
+import java.util.ArrayList;
 
 public class MyData {
 
-    static String[] nameArray = {"Cupcake", "Donut", "Eclair", "Froyo", "Gingerbread", "Honeycomb", "Ice Cream Sandwich","JellyBean", "Kitkat", "Lollipop", "Marshmallow"};
-    static String[] versionArray = {"1.5", "1.6", "2.0-2.1", "2.2-2.2.3", "2.3-2.3.7", "3.0-3.2.6", "4.0-4.0.4", "4.1-4.3.1", "4.4-4.4.4", "5.0-5.1.1","6.0-6.0.1"};
+    //contentName
+    static String[] nameArray = {"snake", "car", "helicopter", "bigben"};
 
+    //contentDescribe
+    static String[] versionArray = {"뱀", "자동차", "헬리콥터", "빅밴"};
+
+    //contentPreview
     static Integer[] drawableArray = {R.drawable.cupcake, R.drawable.donut, R.drawable.eclair,
-            R.drawable.froyo, R.drawable.gingerbread, R.drawable.honeycomb, R.drawable.ics,
-            R.drawable.jellybean, R.drawable.kitkat, R.drawable.lollipop,R.drawable.marsh};
+            R.drawable.froyo};
 
-    static Integer[] id_ = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    //contentId
+    static Integer[] id_ = {0, 1, 2, 3};
+    //contentFileName
+    static String[] contentFileName = {"snake.jet","car.jet","helicopter.jet","bigben.jet"};
+    static ArrayList<String[]> contentTextureFiles = new ArrayList<>();
+    static boolean[] contentHasAnimation = {true,false,false,false};
+    static int[] contentTextureCount = {2,1,1,1};
+
+    public MyData(){
+        contentTextureFiles.add(new String[]{"snake1.png","snake2.png"});
+        contentTextureFiles.add(new String[]{"car1.png"});
+        contentTextureFiles.add(new String[]{"helicopter1.png"});
+        contentTextureFiles.add(new String[]{"bigben1.png"});
+    }
+
+    private static MyData instance;
+
+    public static MyData getInstance () {
+        if (instance == null)
+            instance = new MyData();
+        return instance;
+    }
 }

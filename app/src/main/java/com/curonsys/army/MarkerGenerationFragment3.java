@@ -59,7 +59,8 @@ public class MarkerGenerationFragment3 extends Fragment {
     private static ArrayList<DataModel> data;
     static View.OnClickListener myOnClickListener;
     private static ArrayList<Integer> removedItems;
-
+    DBManager dbManager = DBManager.getInstance();
+    MyData myData = MyData.getInstance();
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -145,7 +146,8 @@ public class MarkerGenerationFragment3 extends Fragment {
     private static class MyOnClickListener implements View.OnClickListener {
 
         private final Context context;
-
+        DBManager dbManager = DBManager.getInstance();
+        MyData myData = MyData.getInstance();
         private MyOnClickListener(Context context) {
             this.context = context;
         }
@@ -194,6 +196,13 @@ public class MarkerGenerationFragment3 extends Fragment {
                         public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                             Toast.makeText(context,textView.getText()+"",Toast.LENGTH_SHORT).show();
                             adapter.notifyItemChanged(selectedItemPosition);
+                            //Toast.makeText(context,dbManager.generatorId,Toast.LENGTH_SHORT).show();
+                            dbManager.contentFileName = myData.contentFileName[selectedItemPosition];
+                            dbManager.contentHasAnimation = myData.contentHasAnimation[selectedItemPosition];
+                            dbManager.contentId = myData.id_[selectedItemPosition];
+                            dbManager.contentName = myData.nameArray[selectedItemPosition];
+                            dbManager.contentTextureFiles = myData.contentTextureFiles.get(selectedItemPosition);
+                            dbManager.textureCount = myData.contentTextureCount[selectedItemPosition];
                         }
                     })
                     .onNegative(new MaterialDialog.SingleButtonCallback() {

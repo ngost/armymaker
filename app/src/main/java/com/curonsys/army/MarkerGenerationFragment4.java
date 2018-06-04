@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
@@ -20,6 +21,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -52,13 +54,33 @@ public class MarkerGenerationFragment4 extends Fragment {
     MaterialDialog.Builder builder = null;
     MaterialDialog materialDialog = null;
 
+    DBManager dbManager = DBManager.getInstance();
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_marker_generation3, container, false);
+        View view = inflater.inflate(R.layout.fragment_marker_generation4, container, false);
         FragmentManager fragmentManager = this.getChildFragmentManager();
+        TextView tv = view.findViewById(R.id.markerInfoTv);
+        tv.setText(dbManager.generatorId+",\n"
+                        +dbManager.markerRating+",\n"
+                        +dbManager.imageURI.toString()+",\n"
+                        +dbManager.markerLongtitude+",\n"
+                        +dbManager.markerLatitude+",\n"
+                        +dbManager.contentId+",\n"
+                        +dbManager.contentName+",\n"
+                        +dbManager.contentFileName+",\n"
+                        +dbManager.contentTextureFiles.toString()+",\n"
+                        +dbManager.contentHasAnimation);
+        Button btn = view.findViewById(R.id.markerTestBtn);
 
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(thisContext,MarkerTestActivity.class);
+                startActivity(intent);
+            }
+        });
         return view;
     }
 

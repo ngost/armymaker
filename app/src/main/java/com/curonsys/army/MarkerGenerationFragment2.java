@@ -52,6 +52,7 @@ public class MarkerGenerationFragment2 extends Fragment implements OnMapReadyCal
     Location mlocation;
     GoogleMap mMap;
     LocationManager lm;
+    DBManager dbManager = DBManager.getInstance();
 
     TextView tv;
     MaterialDialog.Builder builder = null;
@@ -70,6 +71,7 @@ public class MarkerGenerationFragment2 extends Fragment implements OnMapReadyCal
         lm = (LocationManager) thisContext.getSystemService(Context.LOCATION_SERVICE);
         tv = view.findViewById(R.id.locationTestTv);
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(thisContext);
+
 
 
         try {
@@ -107,6 +109,7 @@ public class MarkerGenerationFragment2 extends Fragment implements OnMapReadyCal
         // TODO Auto-generated method stub
         super.onAttach(activity);
         thisContext=activity;
+
     }
 
     private final LocationListener mLocationListener = new LocationListener() {
@@ -136,6 +139,8 @@ public class MarkerGenerationFragment2 extends Fragment implements OnMapReadyCal
             //mMap.moveCamera(CameraUpdateFactory.newLatLng(currentLocation));
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 16));
             lm.removeUpdates(mLocationListener);  //  미수신할때는 반드시 자원해체를 해주어야 한다.
+            dbManager.markerLongtitude = longitude;
+            dbManager.markerLatitude = latitude;
         }
 
 
@@ -159,6 +164,7 @@ public class MarkerGenerationFragment2 extends Fragment implements OnMapReadyCal
 
 //        LatLng SEOUL = new LatLng(37.56, 126.97);
         mMap = map;
+        //Toast.makeText(thisContext,dbManager.generatorId,Toast.LENGTH_SHORT).show();
 //
 //
 //        MarkerOptions markerOptions = new MarkerOptions();
