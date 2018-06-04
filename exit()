@@ -1,0 +1,123 @@
+[33mcommit 5043b6ffdfe0f17717085782ff82e1f0f280980f[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m)[m
+Merge: c765f09 7c866de
+Author: akrnsl32 <akrnsl32@naver.com>
+Date:   Mon Jun 4 15:18:52 2018 +0900
+
+    clear
+
+[33mcommit c765f0978c2fbf8059082257f070564fbe8a8be7[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: akrnsl32 <akrnsl32@naver.com>
+Date:   Mon Jun 4 07:59:17 2018 +0900
+
+    0604 push my local
+
+[33mcommit 7c866de2279a7d4a07803b187a9fc39c7532d6bd[m[33m ([m[1;31marmymaker/master[m[33m)[m
+Author: 이진영 <ijin-yeong@ijin-yeong-ui-MacBook-Pro.local>
+Date:   Mon Jun 4 00:58:27 2018 +0900
+
+    fragment3(step3) will be implemented cardview component based recycler view
+
+[33mcommit dfe6e0847c58fcfb3cd128fed7f0996cc18e60ff[m
+Author: 이진영 <ijin-yeong@ijin-yeong-ui-MacBook-Pro.local>
+Date:   Mon Jun 4 00:45:13 2018 +0900
+
+    fragment 2 add, current position selection fragment (based google map)
+
+[33mcommit 6567e132ed50100dc2b24bd106cf886d581551cc[m
+Author: akrnsl32 <akrnsl32@naver.com>
+Date:   Sun May 27 14:44:37 2018 +0900
+
+    dbmanager class create
+
+[33mcommit a77339d5a179010e6ebcae4cec7514cabcf2efdc[m
+Author: akrnsl32 <akrnsl32@naver.com>
+Date:   Sun May 27 14:31:43 2018 +0900
+
+    dbmanager class create
+
+[33mcommit a88f9f47d2d365d3f1ac10b9863c6309096ff45f[m
+Author: 이진영 <ijin-yeong@ijin-yeong-ui-MacBook-Pro.local>
+Date:   Wed May 23 15:06:32 2018 +0900
+
+    ratingbar add
+
+[33mcommit 6db666ac8c1d2604bb00328715ecfec7aeba612e[m
+Author: 이진영 <ijin-yeong@ijin-yeong-ui-MacBook-Pro.local>
+Date:   Wed May 23 14:30:52 2018 +0900
+
+    sift function background running, Camera capture input sift bug...
+
+[33mcommit ff2e517ad5e3acd4edf6110f743895d9e8528951[m
+Merge: 044faef fb9f057
+Author: 이진영 <ijin-yeong@ijin-yeong-ui-MacBook-Pro.local>
+Date:   Tue May 22 15:39:30 2018 +0900
+
+    pull request confirm
+
+[33mcommit fb9f05739ffecaa56bbb51d36e19ebbbea5570ba[m
+Merge: ca99a49 4caf504
+Author: ngost <hm5207@gmail.com>
+Date:   Tue May 22 15:37:41 2018 +0900
+
+    Merge pull request #2 from akrnsl32/master
+    
+    dbmanager class create
+
+[33mcommit 044faef026aa9ffb67e46a33299475f895896280[m
+Author: 이진영 <ijin-yeong@ijin-yeong-ui-MacBook-Pro.local>
+Date:   Tue May 22 15:36:50 2018 +0900
+
+    dd
+
+[33mcommit 4caf504db28920634f4dd41a39d37cf1551ff575[m
+Author: akrnsl32 <akrnsl32@naver.com>
+Date:   Tue May 22 14:47:21 2018 +0900
+
+    dbmanager class create
+
+[33mcommit ca99a49091dbe6d0b12837e1f3f87f6163f2a78f[m
+Author: ngost <hm5207@gmail.com>
+Date:   Tue May 22 14:31:20 2018 +0900
+
+    Create README.md
+
+[33mcommit 4d17ef97bc64df1a3ac3c42f2dd38e0f9216fdb9[m
+Author: ngost <hm5207@gmail.com>
+Date:   Tue May 22 14:30:35 2018 +0900
+
+    Delete README.md
+    
+    다시 만들꺼야 인코딩 깨졌네 ㅡㅡ
+
+[33mcommit c812295cd519b3dec28f36415048fd963cd65fe7[m
+Merge: ad15e65 710bb91
+Author: ngost <hm5207@gmail.com>
+Date:   Tue May 22 14:24:09 2018 +0900
+
+    Merge pull request #1 from akrnsl32/master
+    
+    pull request
+
+[33mcommit 710bb911af63fe8d0fe989c224dafb15684e6d79[m
+Author: akrnsl32 <akrnsl32@naver.com>
+Date:   Tue May 22 14:16:42 2018 +0900
+
+    pull request
+
+[33mcommit ad15e65e170a82df6666054682a6e7c56f3888cb[m
+Author: ngost <hm5207@gmail.com>
+Date:   Mon May 21 23:56:00 2018 +0900
+
+    Create README.md
+
+[33mcommit 45e7cb9e57789ae7ad9d918e1dfc633e28199865[m
+Author: 이진영 <ijin-yeong@ijin-yeong-ui-MacBook-Pro.local>
+Date:   Mon May 21 23:53:10 2018 +0900
+
+    camera album dialog ADD, Camera Capture Bug Fixed
+
+[33mcommit 300b62975788870a976e94b91973e60558e5955e[m
+Author: 이진영 <ijin-yeong@ijin-yeong-ui-MacBook-Pro.local>
+Date:   Wed May 16 20:35:13 2018 +0900
+
+    init
