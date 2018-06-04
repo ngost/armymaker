@@ -26,7 +26,7 @@ public class MarkerGenerationActivity extends AppCompatActivity {
     Uri photoURI, albumURI;
 
     //private ImageView imageView; //아직 쓰지말자
-  //  private Bitmap inputImage; // make bitmap from image resource
+    //  private Bitmap inputImage; // make bitmap from image resource
 //    private FeatureDetector detector = FeatureDetector.create(FeatureDetector.SIFT);
 
 
@@ -113,3 +113,4 @@ public class MarkerGenerationActivity extends AppCompatActivity {
         super.onResume();
     }
 }
+

@@ -1,0 +1,58 @@
+[33mcommit a77339d5a179010e6ebcae4cec7514cabcf2efdc[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m)[m
+Author: akrnsl32 <akrnsl32@naver.com>
+Date:   Sun May 27 14:31:43 2018 +0900
+
+    dbmanager class create
+
+[33mcommit 4caf504db28920634f4dd41a39d37cf1551ff575[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: akrnsl32 <akrnsl32@naver.com>
+Date:   Tue May 22 14:47:21 2018 +0900
+
+    dbmanager class create
+
+[33mcommit ca99a49091dbe6d0b12837e1f3f87f6163f2a78f[m[33m ([m[1;31marmymaker/master[m[33m)[m
+Author: ngost <hm5207@gmail.com>
+Date:   Tue May 22 14:31:20 2018 +0900
+
+    Create README.md
+
+[33mcommit 4d17ef97bc64df1a3ac3c42f2dd38e0f9216fdb9[m
+Author: ngost <hm5207@gmail.com>
+Date:   Tue May 22 14:30:35 2018 +0900
+
+    Delete README.md
+    
+    다시 만들꺼야 인코딩 깨졌네 ㅡㅡ
+
+[33mcommit c812295cd519b3dec28f36415048fd963cd65fe7[m
+Merge: ad15e65 710bb91
+Author: ngost <hm5207@gmail.com>
+Date:   Tue May 22 14:24:09 2018 +0900
+
+    Merge pull request #1 from akrnsl32/master
+    
+    pull request
+
+[33mcommit 710bb911af63fe8d0fe989c224dafb15684e6d79[m
+Author: akrnsl32 <akrnsl32@naver.com>
+Date:   Tue May 22 14:16:42 2018 +0900
+
+    pull request
+
+[33mcommit ad15e65e170a82df6666054682a6e7c56f3888cb[m
+Author: ngost <hm5207@gmail.com>
+Date:   Mon May 21 23:56:00 2018 +0900
+
+    Create README.md
+
+[33mcommit 45e7cb9e57789ae7ad9d918e1dfc633e28199865[m
+Author: 이진영 <ijin-yeong@ijin-yeong-ui-MacBook-Pro.local>
+Date:   Mon May 21 23:53:10 2018 +0900
+
+    camera album dialog ADD, Camera Capture Bug Fixed
+
+[33mcommit 300b62975788870a976e94b91973e60558e5955e[m
+Author: 이진영 <ijin-yeong@ijin-yeong-ui-MacBook-Pro.local>
+Date:   Wed May 16 20:35:13 2018 +0900
+
+    init
