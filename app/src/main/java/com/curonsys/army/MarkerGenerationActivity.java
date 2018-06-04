@@ -17,6 +17,7 @@ public class MarkerGenerationActivity extends AppCompatActivity {
     static final int FRAGMENT1 = 1;
     static final int FRAGMENT2 = 2;
     static final int FRAGMENT3 = 3;
+    static final int FRAGMENT4 = 4;
     int current_fragment=1;
     Button btn1,btn2;
     Button nextBtn;
@@ -92,6 +93,11 @@ public class MarkerGenerationActivity extends AppCompatActivity {
                         fragmentTransaction.commit();
                         current_fragment = FRAGMENT3;
                         break;
+                    case FRAGMENT3:
+                        fragmentTransaction.setCustomAnimations(R.anim.slide_in_left,R.anim.slide_out_right,0,0);
+                        fragmentTransaction.replace(R.id.fragment_simple,new MarkerGenerationFragment4());
+                        fragmentTransaction.commit();
+                        current_fragment = FRAGMENT4;
                     default:
                         break;
 
