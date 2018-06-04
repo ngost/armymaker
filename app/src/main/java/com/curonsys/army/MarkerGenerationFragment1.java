@@ -8,23 +8,33 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.v4.content.FileProvider;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
+import org.opencv.android.Utils;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfKeyPoint;
+import org.opencv.features2d.FeatureDetector;
+import org.opencv.features2d.Features2d;
+import org.opencv.imgproc.Imgproc;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.Parameter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -34,7 +44,7 @@ import java.util.Date;
 
 
 
-public class MarkerGenerationFragment extends Fragment{
+public class MarkerGenerationFragment1 extends Fragment{
     private static final int MY_PERMISSION_STORAGE = 1111;
     private static final int REQUEST_TAKE_PHOTO = 2222;
     private static final int REQUEST_TAKE_ALBUM = 3333;
@@ -43,19 +53,41 @@ public class MarkerGenerationFragment extends Fragment{
     public String str[] = {"meet","white"};
     ImageView previewImg;
     ImageView iv_view;
+    RatingBar ratingBar;
+    Button next_btn;
 
     Context thisContext;
+    Activity mActivity;
 
     String mCurrentPhotoPath;
     Uri imageUri;
     Uri photoURI, albumURI;
     private Bitmap inputImage; // make bitmap from image resource
+    private FeatureDetector detector = FeatureDetector.create(FeatureDetector.SIFT);
+    MyAsyncTask myAsyncTask;
+
+    static {
+        try {
+            System.loadLibrary("opencv_java");
+        } catch (UnsatisfiedLinkError e) {
+            System.load("opencv_java");
+        }
+        try {
+            System.loadLibrary("nonfree");
+        } catch (UnsatisfiedLinkError e) {
+            System.load("nonfree");
+        }
+        //System.loadLibrary("opencv_java");
+        //System.loadLibrary("nonfree");
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_marker_generation, container, false);
+        View view = inflater.inflate(R.layout.fragment_marker_generation1, container, false);
+        //next_btn = view.findViewById(R.id.next_btn_step1);
+        ratingBar = view.findViewById(R.id.ratingbar);
         previewImg = view.findViewById(R.id.preview_img);
         previewImg.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -77,6 +109,19 @@ public class MarkerGenerationFragment extends Fragment{
                         .show();
             }
         });
+
+       // next_btn.setOnClickListener(new View.OnClickListener() {
+       //     @Override
+       //     public void onClick(View v) {
+//                Fragment fragment2 = new MarkerGenerationFragment2();
+//                FragmentManager fragmentManager = getFragmentManager();
+//                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+//                fragmentTransaction.replace(R.id.fragment_simple,fragment2);
+//                fragmentTransaction.addToBackStack(null);
+//                fragmentTransaction.commit();
+   //         }
+    //    });
+
         return view;
     }
 
@@ -101,6 +146,7 @@ public class MarkerGenerationFragment extends Fragment{
 
                     // 인텐트에 전달할 때는 FileProvier의 Return값인 content://로만!!, providerURI의 값에 카메라 데이터를 넣어 보냄
                     takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,providerURI);
+
 
                     startActivityForResult(takePictureIntent,REQUEST_TAKE_PHOTO);
                 }
@@ -133,6 +179,7 @@ public class MarkerGenerationFragment extends Fragment{
         Intent intent=new Intent(Intent.ACTION_PICK);
         intent.setType("image/*");
         intent.setType(android.provider.MediaStore.Images.Media.CONTENT_TYPE);
+
         startActivityForResult(intent,REQUEST_TAKE_ALBUM);
     }
 
@@ -177,6 +224,10 @@ public class MarkerGenerationFragment extends Fragment{
                         galleryAddPic();
 
                         previewImg.setImageURI(imageUri);
+                        inputImage=MediaStore.Images.Media.getBitmap(thisContext.getContentResolver(),imageUri);
+                        //myAsyncTask = new MyAsyncTask();
+                        //myAsyncTask.execute();
+                        Log.d("camera's uri",imageUri.toString());
                     }catch(Exception e){
                         Log.e("REQUEST_TAKE_PHOTO",e.toString());
                     }
@@ -196,6 +247,7 @@ public class MarkerGenerationFragment extends Fragment{
                             albumURI=Uri.fromFile(albumFile);
                             cropImage();
                             inputImage=MediaStore.Images.Media.getBitmap(thisContext.getContentResolver(),data.getData());
+                            Log.d("album's uri",data.getData().toString());
                         }catch(Exception e){
                             Log.e("TAKE_ALBUM_SINGLE ERROR",e.toString());
                         }
@@ -210,6 +262,8 @@ public class MarkerGenerationFragment extends Fragment{
                     previewImg.setImageURI(albumURI);
                     try{
                         inputImage=MediaStore.Images.Media.getBitmap(thisContext.getContentResolver(),albumURI);
+                        myAsyncTask = new MyAsyncTask();
+                        myAsyncTask.execute();
                     }catch(FileNotFoundException e){
                         // TODO Auto-generated catch block
                         e.printStackTrace();
@@ -224,11 +278,76 @@ public class MarkerGenerationFragment extends Fragment{
         }
     }
 
+    public double sift(){
+        Mat rgba=new Mat();
+        Utils.bitmapToMat(inputImage,rgba);
+        MatOfKeyPoint keyPoints=new MatOfKeyPoint();
+        Imgproc.cvtColor(rgba,rgba,Imgproc.COLOR_RGBA2GRAY);
+        detector.detect(rgba,keyPoints);
+        Features2d.drawKeypoints(rgba,keyPoints,rgba);
+        Utils.matToBitmap(rgba,inputImage);
+//        iv_view.setImageBitmap(inputImage);
+        //sift_tv_result.setText("Keypoint 갯수 : " + keyPoints.toArray().length);
+        double image_size = rgba.size().width*rgba.size().height;
+        return keyPoints.toArray().length/image_size;
+    }
+
     @Override
     public void onAttach(Activity activity) {
         // TODO Auto-generated method stub
         super.onAttach(activity);
         thisContext=activity;
+        if(activity.getClass()== MarkerGenerationActivity.class){
+            mActivity = (MarkerGenerationActivity) activity;
+        }
     }
 
+    public class MyAsyncTask extends AsyncTask<Double, Void, Double> {
+        MaterialDialog.Builder builder = null;
+        MaterialDialog materialDialog = null;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            builder = new MaterialDialog.Builder(thisContext)
+                    .title("유효성 검사중")
+                    .content("시간이 조금 걸릴 수 있습니다...")
+                    .progress(true,0);
+            materialDialog = builder.build();
+            materialDialog.show();
+        }
+
+        @Override
+        protected void onPostExecute(Double value) {
+            super.onPostExecute(value);
+            materialDialog.dismiss();
+            Toast.makeText(thisContext,"유효성 검사가 완료되었습니다.",Toast.LENGTH_SHORT).show();
+            ratingBar.setVisibility(View.VISIBLE);
+            if(value>0.002){
+                ratingBar.setRating(5);
+            }else if(value>0.0015 && value<0.002)
+            {
+                ratingBar.setRating(4);
+            }else if(value>0.0010 && value<0.0015)
+            {
+                ratingBar.setRating(3);
+            }else if(value>0.0005 && value<0.0010)
+            {
+                ratingBar.setRating(2);
+            }else if(value>0.0001 && value<0.0005)
+            {
+                ratingBar.setRating(1);
+            }
+
+            Button nextStepBtn = mActivity.findViewById(R.id.nextstepBtn);
+            nextStepBtn.setClickable(true);
+            nextStepBtn.setEnabled(true);
+            Log.d("asyctask result",value+"");
+        }
+
+        @Override
+        protected Double doInBackground(Double... params) {
+            return sift();
+        }
+    }
 }
