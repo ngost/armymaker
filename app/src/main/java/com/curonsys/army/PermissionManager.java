@@ -29,6 +29,7 @@ public class PermissionManager {
         this.permission_check_list.add(Manifest.permission.READ_EXTERNAL_STORAGE);
         this.permission_check_list.add(Manifest.permission.READ_PHONE_STATE);
         this.permission_check_list.add(Manifest.permission.ACCESS_FINE_LOCATION);
+        this.permission_check_list.add(Manifest.permission.ACCESS_NETWORK_STATE);
     }
 
     public void permissionCheck(){

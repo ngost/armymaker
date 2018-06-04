@@ -20,14 +20,20 @@ public class MyData {
     //contentFileName
     static String[] contentFileName = {"snake.jet","car.jet","helicopter.jet","bigben.jet"};
     static ArrayList<String[]> contentTextureFiles = new ArrayList<>();
+    static ArrayList<String[]> contentTextureNames = new ArrayList<>();
     static boolean[] contentHasAnimation = {true,false,false,false};
-    static int[] contentTextureCount = {2,1,1,1};
+    static int[] contentTextureCount = {3,1,1,1};
 
     public MyData(){
-        contentTextureFiles.add(new String[]{"snake1.png","snake2.png"});
-        contentTextureFiles.add(new String[]{"car1.png"});
-        contentTextureFiles.add(new String[]{"helicopter1.png"});
-        contentTextureFiles.add(new String[]{"bigben1.png"});
+        contentTextureFiles.add(new String[]{"lengua.jpg","ojo.jpg","cuerpo.jpg"});
+        contentTextureFiles.add(new String[]{"car.jpg"});
+        contentTextureFiles.add(new String[]{"helicopter.jpg"});
+        contentTextureFiles.add(new String[]{"bigben.png"});
+
+        contentTextureNames.add(new String[]{"lengua","ojo","cuerpo"});
+        contentTextureNames.add(new String[]{"car"});
+        contentTextureNames.add(new String[]{"helicopter"});
+        contentTextureNames.add(new String[]{"bigben"});
     }
 
     private static MyData instance;

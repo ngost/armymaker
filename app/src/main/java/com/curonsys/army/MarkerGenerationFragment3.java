@@ -203,6 +203,7 @@ public class MarkerGenerationFragment3 extends Fragment {
                             dbManager.contentName = myData.nameArray[selectedItemPosition];
                             dbManager.contentTextureFiles = myData.contentTextureFiles.get(selectedItemPosition);
                             dbManager.textureCount = myData.contentTextureCount[selectedItemPosition];
+                            dbManager.contentTextureNames = myData.contentTextureNames.get(selectedItemPosition);
                         }
                     })
                     .onNegative(new MaterialDialog.SingleButtonCallback() {

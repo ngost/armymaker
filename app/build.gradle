@@ -25,6 +25,12 @@ android {
             universalApk false
         }
     }
+
+    aaptOptions
+            {
+                noCompress 'KARMarker'
+                noCompress 'armodel'
+            }
 }
 
 dependencies {
@@ -41,4 +47,5 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation project(':libraries:opencv')
     implementation 'com.afollestad.material-dialogs:commons:0.9.6.0'
+    implementation project(':KudanAR')
 }

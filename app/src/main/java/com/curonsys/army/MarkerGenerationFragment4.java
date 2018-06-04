@@ -53,7 +53,7 @@ public class MarkerGenerationFragment4 extends Fragment {
 
     MaterialDialog.Builder builder = null;
     MaterialDialog materialDialog = null;
-
+    TextView tv;
     DBManager dbManager = DBManager.getInstance();
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -61,7 +61,7 @@ public class MarkerGenerationFragment4 extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_marker_generation4, container, false);
         FragmentManager fragmentManager = this.getChildFragmentManager();
-        TextView tv = view.findViewById(R.id.markerInfoTv);
+        tv = view.findViewById(R.id.markerInfoTv);
         tv.setText(dbManager.generatorId+",\n"
                         +dbManager.markerRating+",\n"
                         +dbManager.imageURI.toString()+",\n"
@@ -70,15 +70,16 @@ public class MarkerGenerationFragment4 extends Fragment {
                         +dbManager.contentId+",\n"
                         +dbManager.contentName+",\n"
                         +dbManager.contentFileName+",\n"
-                        +dbManager.contentTextureFiles.toString()+",\n"
-                        +dbManager.contentHasAnimation);
+                        +dbManager.contentTextureFiles[0]+",\n"
+                        +dbManager.contentHasAnimation
+                        +dbManager.textureCount);
         Button btn = view.findViewById(R.id.markerTestBtn);
 
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(thisContext,MarkerTestActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent,0);
             }
         });
         return view;
@@ -98,4 +99,17 @@ public class MarkerGenerationFragment4 extends Fragment {
 
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.d("onActivityResult","okok");
+        switch (resultCode) {
+            case 1:
+                Log.d("resultInput","ok");
+                Toast.makeText(thisContext,""+data.getStringExtra("scale"),Toast.LENGTH_SHORT).show();
+//                Log.d("scaleString",data.getFloatExtra("scale",1.0f)+"");
+                tv.setText(tv.getText()+",\n scale : "+data.getStringExtra("scale"));
+                break;
+        }
+    }
 }
