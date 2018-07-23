@@ -1,6 +1,10 @@
 {
     "logs": [
         {
+            "outputFile": "/Users/ijin-yeong/Desktop/android/ARMymaker/libraries/opencv/build/intermediates/res/merged/androidTest/debug/values_values.arsc.flat",
+            "map": []
+        },
+        {
             "outputFile": "/Users/ijin-yeong/Desktop/ARMymaker/libraries/opencv/build/intermediates/res/merged/androidTest/debug/values_values.arsc.flat",
             "map": []
         }
