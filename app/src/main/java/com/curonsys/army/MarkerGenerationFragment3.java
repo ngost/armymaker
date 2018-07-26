@@ -5,15 +5,11 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.graphics.Color;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -26,16 +22,6 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 
@@ -56,11 +42,11 @@ public class MarkerGenerationFragment3 extends Fragment {
     private static RecyclerView.Adapter adapter;
     private RecyclerView.LayoutManager layoutManager;
     private static RecyclerView recyclerView;
-    private static ArrayList<DataModel> data;
+    private static ArrayList<ContentsListModel> data;
     static View.OnClickListener myOnClickListener;
     private static ArrayList<Integer> removedItems;
     DBManager dbManager = DBManager.getInstance();
-    MyData myData = MyData.getInstance();
+    SampleData sampleData = SampleData.getInstance();
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -77,13 +63,13 @@ public class MarkerGenerationFragment3 extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        data = new ArrayList<DataModel>();
-        for (int i = 0; i < MyData.nameArray.length; i++) {
-            data.add(new DataModel(
-                    MyData.nameArray[i],
-                    MyData.versionArray[i],
-                    MyData.id_[i],
-                    MyData.drawableArray[i]
+        data = new ArrayList<ContentsListModel>();
+        for (int i = 0; i < SampleData.nameArray.length; i++) {
+            data.add(new ContentsListModel(
+                    SampleData.nameArray[i],
+                    SampleData.versionArray[i],
+                    SampleData.id_[i],
+                    SampleData.drawableArray[i]
             ));
         }
 
@@ -132,11 +118,11 @@ public class MarkerGenerationFragment3 extends Fragment {
 
     private void addRemovedItemToList() {
         int addItemAtListPosition = 3;
-        data.add(addItemAtListPosition, new DataModel(
-                MyData.nameArray[removedItems.get(0)],
-                MyData.versionArray[removedItems.get(0)],
-                MyData.id_[removedItems.get(0)],
-                MyData.drawableArray[removedItems.get(0)]
+        data.add(addItemAtListPosition, new ContentsListModel(
+                SampleData.nameArray[removedItems.get(0)],
+                SampleData.versionArray[removedItems.get(0)],
+                SampleData.id_[removedItems.get(0)],
+                SampleData.drawableArray[removedItems.get(0)]
         ));
         adapter.notifyItemInserted(addItemAtListPosition);
         removedItems.remove(0);
@@ -147,7 +133,7 @@ public class MarkerGenerationFragment3 extends Fragment {
 
         private final Context context;
         DBManager dbManager = DBManager.getInstance();
-        MyData myData = MyData.getInstance();
+        SampleData sampleData = SampleData.getInstance();
         private MyOnClickListener(Context context) {
             this.context = context;
         }
@@ -166,9 +152,9 @@ public class MarkerGenerationFragment3 extends Fragment {
                     = (TextView) viewHolder.itemView.findViewById(R.id.textViewName);
             String selectedName = (String) textViewName.getText();
             int selectedItemId = -1;
-            for (int i = 0; i < MyData.nameArray.length; i++) {
-                if (selectedName.equals(MyData.nameArray[i])) {
-                    selectedItemId = MyData.id_[i];
+            for (int i = 0; i < SampleData.nameArray.length; i++) {
+                if (selectedName.equals(SampleData.nameArray[i])) {
+                    selectedItemId = SampleData.id_[i];
                 }
             }
             removedItems.add(selectedItemId);
@@ -197,13 +183,13 @@ public class MarkerGenerationFragment3 extends Fragment {
                             Toast.makeText(context,textView.getText()+"",Toast.LENGTH_SHORT).show();
                             adapter.notifyItemChanged(selectedItemPosition);
                             //Toast.makeText(context,dbManager.generatorId,Toast.LENGTH_SHORT).show();
-                            dbManager.contentFileName = myData.contentFileName[selectedItemPosition];
-                            dbManager.contentHasAnimation = myData.contentHasAnimation[selectedItemPosition];
-                            dbManager.contentId = myData.id_[selectedItemPosition];
-                            dbManager.contentName = myData.nameArray[selectedItemPosition];
-                            dbManager.contentTextureFiles = myData.contentTextureFiles.get(selectedItemPosition);
-                            dbManager.textureCount = myData.contentTextureCount[selectedItemPosition];
-                            dbManager.contentTextureNames = myData.contentTextureNames.get(selectedItemPosition);
+                            dbManager.contentFileName = sampleData.contentFileName[selectedItemPosition];
+                            dbManager.contentHasAnimation = sampleData.contentHasAnimation[selectedItemPosition];
+                            dbManager.contentId = sampleData.id_[selectedItemPosition];
+                            dbManager.contentName = sampleData.nameArray[selectedItemPosition];
+                            dbManager.contentTextureFiles = sampleData.contentTextureFiles.get(selectedItemPosition);
+                            dbManager.textureCount = sampleData.contentTextureCount[selectedItemPosition];
+                            dbManager.contentTextureNames = sampleData.contentTextureNames.get(selectedItemPosition);
                         }
                     })
                     .onNegative(new MaterialDialog.SingleButtonCallback() {

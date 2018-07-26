@@ -1,9 +1,10 @@
 package com.curonsys.army;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
-public class GeneralUserActivity extends AppCompatActivity {
+import eu.kudan.kudan.ARActivity;
+
+public class GeneralUserActivity extends ARActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

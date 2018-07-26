@@ -3,7 +3,7 @@ package com.curonsys.army;
 
 import java.util.ArrayList;
 
-public class MyData {
+public class SampleData {
 
     //contentName
     static String[] nameArray = {"snake", "car", "helicopter", "bigben"};
@@ -24,7 +24,7 @@ public class MyData {
     static boolean[] contentHasAnimation = {true,false,false,false};
     static int[] contentTextureCount = {3,1,1,1};
 
-    public MyData(){
+    public SampleData(){
         contentTextureFiles.add(new String[]{"lengua.jpg","ojo.jpg","cuerpo.jpg"});
         contentTextureFiles.add(new String[]{"car.jpg"});
         contentTextureFiles.add(new String[]{"helicopter.jpg"});
@@ -36,11 +36,11 @@ public class MyData {
         contentTextureNames.add(new String[]{"bigben"});
     }
 
-    private static MyData instance;
+    private static SampleData instance;
 
-    public static MyData getInstance () {
+    public static SampleData getInstance () {
         if (instance == null)
-            instance = new MyData();
+            instance = new SampleData();
         return instance;
     }
 }

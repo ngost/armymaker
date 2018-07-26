@@ -1,7 +1,7 @@
 package com.curonsys.army;
 
 
-public class DataModel {
+public class ContentsListModel {
 
 
     String name;
@@ -9,7 +9,7 @@ public class DataModel {
     int id_;
     int image;
 
-    public DataModel(String name, String version, int id_, int image) {
+    public ContentsListModel(String name, String version, int id_, int image) {
         this.name = name;
         this.version = version;
         this.id_ = id_;

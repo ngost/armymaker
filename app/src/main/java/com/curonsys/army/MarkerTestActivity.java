@@ -46,8 +46,8 @@ public class MarkerTestActivity extends ARActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_marker_test);
-        ARAPIKey key = ARAPIKey.getInstance();
-        key.setAPIKey("lNNBHsE9P8I7VtEZ4Y/NnO0Vs+CkOdKQDdfP2JfLRBqZigQ3iQaaC7mnxCYwatWKMrXVCRk8U972dXK7qFbAC+b7cHk5tiDufSXLKOE9ZGEu5PebF7HDc+zSE18WfthhZHbyL9VWk5/2EO7dLO8Y5WVaADfc2aIs3ITuJ+FtrzjsfzsbTKjwDdkzrxDBOX4DQRO4yB0S2RP6dmPkkf2bjAqj704C/mM6iXm2ARZDLzgzm83oosCv3v4nYGdIBCz+9BASSljzLy2/2H3wXj7N9dk0YVGSNMzy59yyZZv/TaZ1f8m8crfXjyRlZy8tcFCr9SzZxTXMpz2SCCFy7SxBx5Tkv0nJPhOwiLXXaKumwdMDsZAmeUk5W/EDmFTVjQdXOGvIRwG4Xxg3uoWCBR1Dx49OLf8GnkHdU+ogbARjYeqBnDx3eNDaS6bYCtzUhf6PF15atk5r94oPIyi+89CQ+bD7MO7Fm5USv6pwJ2Hl4h+LYc54nLq39ZRVH1ScSPzTA/tycwQ6/2m7VBaU9q51B0jZwFyfiXW1OFUouKPgY0w1roJGxaVKX2QYJgr0sVv05GXoP2pjwFY7wwWhJ+uTWNUj6Nk0Zj/ejXJLBvq1EnuLBlsqh+7SwmZSo99qSymDMQwEAEh4smDXjd0dDEUyEyUpGvZfgHBakvlWpp3M8OY=");
+  //      ARAPIKey key = ARAPIKey.getInstance();
+//        key.setAPIKey("lNNBHsE9P8I7VtEZ4Y/NnO0Vs+CkOdKQDdfP2JfLRBqZigQ3iQaaC7mnxCYwatWKMrXVCRk8U972dXK7qFbAC+b7cHk5tiDufSXLKOE9ZGEu5PebF7HDc+zSE18WfthhZHbyL9VWk5/2EO7dLO8Y5WVaADfc2aIs3ITuJ+FtrzjsfzsbTKjwDdkzrxDBOX4DQRO4yB0S2RP6dmPkkf2bjAqj704C/mM6iXm2ARZDLzgzm83oosCv3v4nYGdIBCz+9BASSljzLy2/2H3wXj7N9dk0YVGSNMzy59yyZZv/TaZ1f8m8crfXjyRlZy8tcFCr9SzZxTXMpz2SCCFy7SxBx5Tkv0nJPhOwiLXXaKumwdMDsZAmeUk5W/EDmFTVjQdXOGvIRwG4Xxg3uoWCBR1Dx49OLf8GnkHdU+ogbARjYeqBnDx3eNDaS6bYCtzUhf6PF15atk5r94oPIyi+89CQ+bD7MO7Fm5USv6pwJ2Hl4h+LYc54nLq39ZRVH1ScSPzTA/tycwQ6/2m7VBaU9q51B0jZwFyfiXW1OFUouKPgY0w1roJGxaVKX2QYJgr0sVv05GXoP2pjwFY7wwWhJ+uTWNUj6Nk0Zj/ejXJLBvq1EnuLBlsqh+7SwmZSo99qSymDMQwEAEh4smDXjd0dDEUyEyUpGvZfgHBakvlWpp3M8OY=");
         seekBar = findViewById(R.id.scaleSeekbar);
         completeBtn  = findViewById(R.id.completeBtn);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -160,27 +160,13 @@ public class MarkerTestActivity extends ARActivity {
             node3d.rotateByDegrees(180.0f,1.0f,100.0f,0.0f);
 
 //            ARTexture2D texture2D_1 = new ARTexture2D();
-//            ARTexture2D texture2D_2 = new ARTexture2D();
-//            ARTexture2D texture2D_3 = new ARTexture2D();
-//
+
 //            texture2D_1.loadFromAsset(dbManager.contentTextureFiles[0]);
 //            ARLightMaterial material1 = new ARLightMaterial();
 //            material1.setTexture(texture2D_1);
 //            material1.setColour(1,1,1);
 //            material1.setAmbient(0.8f,0.8f,0.8f);
 //            material1.setName("");
-//
-//            texture2D_2.loadFromAsset(dbManager.contentTextureFiles[1]);
-//            ARLightMaterial material2 = new ARLightMaterial();
-//            material2.setTexture(texture2D_2);
-//            material2.setColour(1,1,1);
-//            material2.setAmbient(0.8f,0.8f,0.8f);
-//
-//            texture2D_3.loadFromAsset(dbManager.contentTextureFiles[2]);
-//            ARLightMaterial material3 = new ARLightMaterial();
-//            material3.setTexture(texture2D_3);
-//            material3.setColour(1,1,1);
-//            material3.setAmbient(0.8f,0.8f,0.8f);
 
             ARTexture2D[] texture2DS = new ARTexture2D[dbManager.textureCount];
             ARLightMaterial[] material = new ARLightMaterial[dbManager.textureCount];
@@ -205,7 +191,7 @@ public class MarkerTestActivity extends ARActivity {
 
             for(ARMeshNode meshNode : arModelImporter.getMeshNodes()){
 
-                String name = meshNode.getName();
+               String name = meshNode.getName();
                 meshNode.setMaterial(materialMap.get(name));
 
             }
