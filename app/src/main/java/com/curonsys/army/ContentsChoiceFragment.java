@@ -23,6 +23,10 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 
 /**
@@ -31,7 +35,7 @@ import java.util.ArrayList;
 
 
 
-public class MarkerGenerationFragment3 extends Fragment {
+public class ContentsChoiceFragment extends Fragment {
 
     Context thisContext;
 
@@ -47,6 +51,8 @@ public class MarkerGenerationFragment3 extends Fragment {
     private static ArrayList<Integer> removedItems;
     DBManager dbManager = DBManager.getInstance();
     SampleData sampleData = SampleData.getInstance();
+    private JSONArray contents;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -55,23 +61,21 @@ public class MarkerGenerationFragment3 extends Fragment {
         FragmentManager fragmentManager = this.getChildFragmentManager();
 
         myOnClickListener = new MyOnClickListener(thisContext);
-
         recyclerView = (RecyclerView) view.findViewById(R.id.my_recycler_view);
         recyclerView.setHasFixedSize(true);
-
         layoutManager = new LinearLayoutManager(thisContext);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
+
+        // will be implemented..
+        // contents = getContentsList();
+
+        contents = getFakeContentsList();
         data = new ArrayList<ContentsListModel>();
-        for (int i = 0; i < SampleData.nameArray.length; i++) {
-            data.add(new ContentsListModel(
-                    SampleData.nameArray[i],
-                    SampleData.versionArray[i],
-                    SampleData.id_[i],
-                    SampleData.drawableArray[i]
-            ));
-        }
+        initContentsList(data, contents);
+
+
 
         removedItems = new ArrayList<Integer>();
 
@@ -80,6 +84,56 @@ public class MarkerGenerationFragment3 extends Fragment {
 
         return view;
     }
+
+    private String getContentsList() {
+        return null;
+    }
+
+    public JSONArray getFakeContentsList(){
+        JSONArray jsonArray = new JSONArray();
+        JSONObject jsonObject;
+        try {
+            jsonObject = new JSONObject();
+            jsonObject.put("ContentsIndentify","1");
+            jsonObject.put("ContentsName","snake");
+            jsonObject.put("ContentsDescribe","뱀이다");
+            jsonObject.put("ThumbNailUrl","http://www.sciencemag.org/sites/default/files/styles/article_main_large/public/images/cc_iStock_18996432_LARGE_16x9.jpg?itok=Xd6hKkof");
+            jsonArray.put(jsonObject);
+
+            jsonObject = new JSONObject();
+            jsonObject.put("ContentsIndentify","2");
+            jsonObject.put("ContentsName","ben");
+            jsonObject.put("ContentsDescribe","시계탑이다");
+            jsonObject.put("ThumbNailUrl","http://www.sciencemag.org/sites/default/files/styles/article_main_large/public/images/cc_iStock_18996432_LARGE_16x9.jpg?itok=Xd6hKkof");
+            jsonArray.put(jsonObject);
+
+            jsonObject = new JSONObject();
+            jsonObject.put("ContentsIndentify","3");
+            jsonObject.put("ContentsName","heli");
+            jsonObject.put("ContentsDescribe","헬기다");
+            jsonObject.put("ThumbNailUrl","http://www.sciencemag.org/sites/default/files/styles/article_main_large/public/images/cc_iStock_18996432_LARGE_16x9.jpg?itok=Xd6hKkof");
+            jsonArray.put(jsonObject);
+        }catch (JSONException e){e.printStackTrace();}
+
+
+        return jsonArray;
+    }
+
+    private void initContentsList(ArrayList<ContentsListModel> li, JSONArray contents_array) {
+        try{
+            for (int i = 0; i < contents_array.length(); i++) {
+                li.add(new ContentsListModel(
+                        contents_array.getJSONObject(i).getString("ContentsIndentify"),
+                        contents_array.getJSONObject(i).getString("ContentsName"),
+                        contents_array.getJSONObject(i).getString("ContentsDescribe"),
+                        contents_array.getJSONObject(i).getString("ThumbNailUrl")
+                ));
+            }
+        }catch (JSONException e){e.printStackTrace();}
+
+    }
+
+
 
     @Override
     public void onDestroy() {
@@ -117,15 +171,15 @@ public class MarkerGenerationFragment3 extends Fragment {
     }
 
     private void addRemovedItemToList() {
-        int addItemAtListPosition = 3;
-        data.add(addItemAtListPosition, new ContentsListModel(
-                SampleData.nameArray[removedItems.get(0)],
-                SampleData.versionArray[removedItems.get(0)],
-                SampleData.id_[removedItems.get(0)],
-                SampleData.drawableArray[removedItems.get(0)]
-        ));
-        adapter.notifyItemInserted(addItemAtListPosition);
-        removedItems.remove(0);
+//        int addItemAtListPosition = 3;
+//        data.add(addItemAtListPosition, new ContentsListModel(
+//                SampleData.nameArray[removedItems.get(0)],
+//                SampleData.versionArray[removedItems.get(0)],
+//                SampleData.id_[removedItems.get(0)],
+//                SampleData.drawableArray[removedItems.get(0)]
+//        ));
+//        adapter.notifyItemInserted(addItemAtListPosition);
+//        removedItems.remove(0);
     }
 
 
@@ -168,7 +222,7 @@ public class MarkerGenerationFragment3 extends Fragment {
                     = recyclerView.findViewHolderForPosition(selectedItemPosition);
             LinearLayout linearLayout = viewHolder.itemView.findViewById(R.id.card_item_linear);
 
-            linearLayout.setBackgroundColor(Color.BLUE);
+            linearLayout.setBackgroundColor(Color.LTGRAY);
             final TextView textView = viewHolder.itemView.findViewById(R.id.textViewName);
 
 //            adapter.notifyItemChanged(selectedItemPosition);

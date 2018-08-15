@@ -47,7 +47,7 @@ import java.util.ArrayList;
 
 
 
-public class MarkerGenerationFragment4 extends Fragment {
+public class MarkerConfirmFragment extends Fragment {
 
     Context thisContext;
 

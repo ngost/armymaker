@@ -42,19 +42,19 @@ public class MarkerGenerationActivity extends AppCompatActivity {
                 switch (current_fragment){
                     case FRAGMENT1:
                         fragmentTransaction.setCustomAnimations(R.anim.slide_in_left,R.anim.slide_out_right,0,0);
-                        fragmentTransaction.replace(R.id.fragment_simple,new MarkerGenerationFragment2());
+                        fragmentTransaction.replace(R.id.fragment_simple,new LocationChoiceFragment());
                         fragmentTransaction.commit();
                         current_fragment = FRAGMENT2;
                         break;
                     case FRAGMENT2:
                         fragmentTransaction.setCustomAnimations(R.anim.slide_in_left,R.anim.slide_out_right,0,0);
-                        fragmentTransaction.replace(R.id.fragment_simple,new MarkerGenerationFragment3());
+                        fragmentTransaction.replace(R.id.fragment_simple,new ContentsChoiceFragment());
                         fragmentTransaction.commit();
                         current_fragment = FRAGMENT3;
                         break;
                     case FRAGMENT3:
                         fragmentTransaction.setCustomAnimations(R.anim.slide_in_left,R.anim.slide_out_right,0,0);
-                        fragmentTransaction.replace(R.id.fragment_simple,new MarkerGenerationFragment4());
+                        fragmentTransaction.replace(R.id.fragment_simple,new MarkerConfirmFragment());
                         fragmentTransaction.commit();
                         current_fragment = FRAGMENT4;
                     default:

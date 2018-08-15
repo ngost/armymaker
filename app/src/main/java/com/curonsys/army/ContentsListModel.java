@@ -1,36 +1,37 @@
 package com.curonsys.army;
 
 
+import java.net.URL;
+
 public class ContentsListModel {
 
 
-    String name;
-    String version;
-    int id_;
-    int image;
+    String contents_name;
+    String contents_describe;
+    String contents_id;
+    String thumbNailUrl;
 
-    public ContentsListModel(String name, String version, int id_, int image) {
-        this.name = name;
-        this.version = version;
-        this.id_ = id_;
-        this.image=image;
+    public ContentsListModel( String id, String name, String describe, String imgUrl) {
+        this.contents_id = id;
+        this.contents_name = name;
+        this.contents_describe = describe;
+        this.thumbNailUrl=imgUrl;
     }
 
 
     public String getName() {
-        return name;
+        return contents_name;
     }
 
-
-    public String getVersion() {
-        return version;
+    public String getDescribe() {
+        return contents_describe;
     }
 
-    public int getImage() {
-        return image;
+    public String getImageURL() {
+        return thumbNailUrl;
     }
 
-    public int getId() {
-        return id_;
+    public String getId() {
+        return contents_id;
     }
 }

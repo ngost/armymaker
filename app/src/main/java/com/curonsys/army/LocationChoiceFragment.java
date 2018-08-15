@@ -43,13 +43,10 @@ import java.util.Locale;
 
 
 
-public class MarkerGenerationFragment2 extends Fragment implements OnMapReadyCallback {
+public class LocationChoiceFragment extends Fragment implements OnMapReadyCallback {
 
     Context thisContext;
     FusedLocationProviderClient fusedLocationProviderClient;
-    private LocationCallback mLocationCallback;
-    LocationRequest mLocationRequest;
-    Location mlocation;
     GoogleMap mMap;
     LocationManager lm;
     DBManager dbManager = DBManager.getInstance();
@@ -72,8 +69,6 @@ public class MarkerGenerationFragment2 extends Fragment implements OnMapReadyCal
         tv = view.findViewById(R.id.locationTestTv);
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(thisContext);
 
-
-
         try {
             lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, // 등록할 위치제공자
                     100, // 통지사이의 최소 시간간격 (miliSecond)
@@ -94,8 +89,6 @@ public class MarkerGenerationFragment2 extends Fragment implements OnMapReadyCal
         materialDialog = builder.build();
         materialDialog.show();
 
-
-
         return view;
     }
 
@@ -114,22 +107,13 @@ public class MarkerGenerationFragment2 extends Fragment implements OnMapReadyCal
 
     private final LocationListener mLocationListener = new LocationListener() {
         public void onLocationChanged(Location location) {
-            //여기서 위치값이 갱신되면 이벤트가 발생한다.
-            //값은 Location 형태로 리턴되며 좌표 출력 방법은 다음과 같다.
+            //if location data is change, listener event alert.
 
-            Log.d("test", "onLocationChanged, location:" + location);
             double longitude = location.getLongitude(); //경도
             double latitude = location.getLatitude();   //위도
-            double altitude = location.getAltitude();   //고도
-            float accuracy = location.getAccuracy();    //정확도
-            String provider = location.getProvider();   //위치제공자
-            //Gps 위치제공자에 의한 위치변화. 오차범위가 좁다.
-            //Network 위치제공자에 의한 위치변화
-            //Network 위치는 Gps에 비해 정확도가 많이 떨어진다.
-//            tv.setText("위치정보 : " + provider + "\n위도 : " + longitude + "\n경도 : " + latitude
-  //                  + "\n고도 : " + altitude + "\n정확도 : " + accuracy);
+    //        double altitude = location.getAltitude();   //고도//          float accuracy = location.getAccuracy();    //정확도//            String provider = location.getProvider();   //위치제공자
             materialDialog.dismiss();
-            //Toast.makeText(thisContext.getApplicationContext(),"위치:"+longitude+","+latitude+",",Toast.LENGTH_SHORT).show();
+
             LatLng currentLocation = new LatLng(latitude,longitude);
             MarkerOptions markerOptions = new MarkerOptions();
             markerOptions.position(currentLocation);
@@ -142,7 +126,6 @@ public class MarkerGenerationFragment2 extends Fragment implements OnMapReadyCal
             dbManager.markerLongtitude = longitude;
             dbManager.markerLatitude = latitude;
         }
-
 
         public void onProviderDisabled(String provider) {
             // Disabled시
@@ -161,19 +144,6 @@ public class MarkerGenerationFragment2 extends Fragment implements OnMapReadyCal
     };
     @Override
     public void onMapReady(final GoogleMap map) {
-
-//        LatLng SEOUL = new LatLng(37.56, 126.97);
         mMap = map;
-        //Toast.makeText(thisContext,dbManager.generatorId,Toast.LENGTH_SHORT).show();
-//
-//
-//        MarkerOptions markerOptions = new MarkerOptions();
-//        markerOptions.position(SEOUL);
-//        markerOptions.title("현재 위치");
-//        markerOptions.snippet("한국의 수도");
-//        map.addMarker(markerOptions);
-//
-//        map.moveCamera(CameraUpdateFactory.newLatLng(SEOUL));
-//        map.animateCamera(CameraUpdateFactory.zoomTo(10));
     }
 }
