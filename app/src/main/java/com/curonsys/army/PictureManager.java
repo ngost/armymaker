@@ -7,6 +7,9 @@ import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import java.io.File;
@@ -126,8 +129,8 @@ public class PictureManager {
         cropIntent.setDataAndType(photoURI,"image/*");
         //cropIntent.putExtra("outputX", 200); // crop한 이미지의 x축 크기, 결과물의 크기
         //cropIntent.putExtra("outputY", 200); // crop한 이미지의 y축 크기
-        cropIntent.putExtra("aspectX",1); // crop 박스의 x축 비율, 1&1이면 정사각형
-        cropIntent.putExtra("aspectY",1); // crop 박스의 y축 비율
+//        cropIntent.putExtra("aspectX",1); // crop 박스의 x축 비율, 1&1이면 정사각형
+  //      cropIntent.putExtra("aspectY",1); // crop 박스의 y축 비율
         cropIntent.putExtra("scale",true);
         cropIntent.putExtra("output",albumURI); // 크랍된 이미지를 해당 경로에 저장
 //        startActivityForResult(cropIntent,REQUEST_IMAGE_CROP);
@@ -149,5 +152,6 @@ public class PictureManager {
     public Uri getPhotoURI(){
         return this.photoURI;
     }
+
 }
 

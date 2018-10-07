@@ -10,6 +10,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.telecom.Call;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -28,6 +29,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+
+import static com.curonsys.army.SampleData.getFakeContentsList;
 
 /**
  * Created by ijin-yeong on 2018. 5. 21..
@@ -48,7 +51,7 @@ public class ContentsChoiceFragment extends Fragment {
     private static RecyclerView recyclerView;
     private static ArrayList<ContentsListModel> data;
     static View.OnClickListener myOnClickListener;
-    private static ArrayList<Integer> removedItems;
+//    private static ArrayList<Integer> removedItems;
     DBManager dbManager = DBManager.getInstance();
     SampleData sampleData = SampleData.getInstance();
     private JSONArray contents;
@@ -57,10 +60,10 @@ public class ContentsChoiceFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_marker_generation3, container, false);
+        View view = inflater.inflate(R.layout.fragment_contents_choice, container, false);
         FragmentManager fragmentManager = this.getChildFragmentManager();
 
-        myOnClickListener = new MyOnClickListener(thisContext);
+        myOnClickListener = new MyOnClickListener(thisContext,getActivity());
         recyclerView = (RecyclerView) view.findViewById(R.id.my_recycler_view);
         recyclerView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(thisContext);
@@ -75,9 +78,7 @@ public class ContentsChoiceFragment extends Fragment {
         data = new ArrayList<ContentsListModel>();
         initContentsList(data, contents);
 
-
-
-        removedItems = new ArrayList<Integer>();
+//        removedItems = new ArrayList<Integer>();
 
         adapter = new CustomAdapter(data);
         recyclerView.setAdapter(adapter);
@@ -89,44 +90,16 @@ public class ContentsChoiceFragment extends Fragment {
         return null;
     }
 
-    public JSONArray getFakeContentsList(){
-        JSONArray jsonArray = new JSONArray();
-        JSONObject jsonObject;
-        try {
-            jsonObject = new JSONObject();
-            jsonObject.put("ContentsIndentify","1");
-            jsonObject.put("ContentsName","snake");
-            jsonObject.put("ContentsDescribe","뱀이다");
-            jsonObject.put("ThumbNailUrl","http://www.sciencemag.org/sites/default/files/styles/article_main_large/public/images/cc_iStock_18996432_LARGE_16x9.jpg?itok=Xd6hKkof");
-            jsonArray.put(jsonObject);
-
-            jsonObject = new JSONObject();
-            jsonObject.put("ContentsIndentify","2");
-            jsonObject.put("ContentsName","ben");
-            jsonObject.put("ContentsDescribe","시계탑이다");
-            jsonObject.put("ThumbNailUrl","http://www.sciencemag.org/sites/default/files/styles/article_main_large/public/images/cc_iStock_18996432_LARGE_16x9.jpg?itok=Xd6hKkof");
-            jsonArray.put(jsonObject);
-
-            jsonObject = new JSONObject();
-            jsonObject.put("ContentsIndentify","3");
-            jsonObject.put("ContentsName","heli");
-            jsonObject.put("ContentsDescribe","헬기다");
-            jsonObject.put("ThumbNailUrl","http://www.sciencemag.org/sites/default/files/styles/article_main_large/public/images/cc_iStock_18996432_LARGE_16x9.jpg?itok=Xd6hKkof");
-            jsonArray.put(jsonObject);
-        }catch (JSONException e){e.printStackTrace();}
 
 
-        return jsonArray;
-    }
-
-    private void initContentsList(ArrayList<ContentsListModel> li, JSONArray contents_array) {
+    private void initContentsList(ArrayList<ContentsListModel> li, JSONArray gotted_contents) {
         try{
-            for (int i = 0; i < contents_array.length(); i++) {
+            for (int i = 0; i < gotted_contents.length(); i++) {
                 li.add(new ContentsListModel(
-                        contents_array.getJSONObject(i).getString("ContentsIndentify"),
-                        contents_array.getJSONObject(i).getString("ContentsName"),
-                        contents_array.getJSONObject(i).getString("ContentsDescribe"),
-                        contents_array.getJSONObject(i).getString("ThumbNailUrl")
+                        gotted_contents.getJSONObject(i).getString("ContentsIndentify"),
+                        gotted_contents.getJSONObject(i).getString("ContentsName"),
+                        gotted_contents.getJSONObject(i).getString("ContentsDescribe"),
+                        gotted_contents.getJSONObject(i).getString("ThumbNailUrl")
                 ));
             }
         }catch (JSONException e){e.printStackTrace();}
@@ -159,14 +132,14 @@ public class ContentsChoiceFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         super.onOptionsItemSelected(item);
-        if (item.getItemId() == R.id.add_item) {
-            //check if any items to add
-            if (removedItems.size() != 0) {
-                addRemovedItemToList();
-            } else {
-                Toast.makeText(thisContext, "Nothing to add", Toast.LENGTH_SHORT).show();
-            }
-        }
+//        if (item.getItemId() == R.id.add_item) {
+//            //check if any items to add
+//            if (removedItems.size() != 0) {
+//                addRemovedItemToList();
+//            } else {
+//                Toast.makeText(thisContext, "Nothing to add", Toast.LENGTH_SHORT).show();
+//            }
+//        }
         return true;
     }
 
@@ -186,37 +159,41 @@ public class ContentsChoiceFragment extends Fragment {
     private static class MyOnClickListener implements View.OnClickListener {
 
         private final Context context;
+        CallBackListener callBackListener;
         DBManager dbManager = DBManager.getInstance();
         SampleData sampleData = SampleData.getInstance();
-        private MyOnClickListener(Context context) {
+        private MyOnClickListener(Context context,Activity activity) {
             this.context = context;
+            callBackListener = (CallBackListener) activity;
         }
 
         @Override
         public void onClick(View v) {
             //removeItem(v);
             selectedItem(v);
+
         }
 
-        private void removeItem(View v) {
-            int selectedItemPosition = recyclerView.getChildPosition(v);
-            RecyclerView.ViewHolder viewHolder
-                    = recyclerView.findViewHolderForPosition(selectedItemPosition);
-            TextView textViewName
-                    = (TextView) viewHolder.itemView.findViewById(R.id.textViewName);
-            String selectedName = (String) textViewName.getText();
-            int selectedItemId = -1;
-            for (int i = 0; i < SampleData.nameArray.length; i++) {
-                if (selectedName.equals(SampleData.nameArray[i])) {
-                    selectedItemId = SampleData.id_[i];
-                }
-            }
-            removedItems.add(selectedItemId);
-            data.remove(selectedItemPosition);
-            adapter.notifyItemRemoved(selectedItemPosition);
-        }
+//        private void removeItem(View v) {
+//            int selectedItemPosition = recyclerView.getChildPosition(v);
+//            RecyclerView.ViewHolder viewHolder
+//                    = recyclerView.findViewHolderForPosition(selectedItemPosition);
+//            TextView textViewName
+//                    = (TextView) viewHolder.itemView.findViewById(R.id.textViewName);
+//            String selectedName = (String) textViewName.getText();
+//            int selectedItemId = -1;
+//            for (int i = 0; i < SampleData.nameArray.length; i++) {
+//                if (selectedName.equals(SampleData.nameArray[i])) {
+//                    selectedItemId = SampleData.id_[i];
+//                }
+//            }
+//            removedItems.add(selectedItemId);
+//            data.remove(selectedItemPosition);
+//            adapter.notifyItemRemoved(selectedItemPosition);
+//        }
 
         private void selectedItem(View v){
+
             final int selectedItemPosition = recyclerView.getChildPosition(v);
             RecyclerView.ViewHolder viewHolder
                     = recyclerView.findViewHolderForPosition(selectedItemPosition);
@@ -244,6 +221,7 @@ public class ContentsChoiceFragment extends Fragment {
                             dbManager.contentTextureFiles = sampleData.contentTextureFiles.get(selectedItemPosition);
                             dbManager.textureCount = sampleData.contentTextureCount[selectedItemPosition];
                             dbManager.contentTextureNames = sampleData.contentTextureNames.get(selectedItemPosition);
+                            callBackListener.onDoneBack();
                         }
                     })
                     .onNegative(new MaterialDialog.SingleButtonCallback() {

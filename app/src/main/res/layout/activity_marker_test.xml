@@ -7,10 +7,26 @@
     android:orientation="vertical"
     tools:context="com.curonsys.army.MarkerTestActivity">
     <SeekBar
-        android:max="300"
+        android:max="600"
         android:id="@+id/scaleSeekbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="30dp" />
+    <SeekBar
+        android:max="1"
+        android:id="@+id/rotate_x_seek"
+        android:layout_width="match_parent"
+        android:layout_height="30dp" />
+    <SeekBar
+        android:max="1"
+        android:id="@+id/rotate_y_seek"
+        android:layout_width="match_parent"
+        android:layout_height="30dp" />
+    <SeekBar
+        android:max="1"
+        android:id="@+id/rotate_z_seek"
+        android:layout_width="match_parent"
+        android:layout_height="30dp" />
+
     <Button
         android:text="complete"
         android:id="@+id/completeBtn"

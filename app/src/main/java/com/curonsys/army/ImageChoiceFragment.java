@@ -25,6 +25,7 @@ import java.io.IOException;
 
 /**
  * Created by ijin-yeong on 2018. 5. 21..
+ * 마커로 사용할 이미지 선택 엑티비티
  */
 
 
@@ -34,6 +35,7 @@ public class ImageChoiceFragment extends Fragment{
     private static final int REQUEST_TAKE_PHOTO = 2;
     private static final int REQUEST_TAKE_ALBUM = 3;
     private static final int REQUEST_IMAGE_CROP = 4;
+    private CallBackListener callBackListener;
 
     PictureManager pictureManager;
     ImageView showingImg; // 원래는 Previewimg 이름
@@ -41,9 +43,9 @@ public class ImageChoiceFragment extends Fragment{
     Activity mActivity;
     Context thisContext;
 
-    private Bitmap inputImage; // sift 연산시 사용할 이미지, 근데 crop 된 이미지인지 확인해야 함
+    private Bitmap inputImage; // sift 연산시 사용할 이미지
 
-    CheckingAsyncTask myAsyncTask;
+    ImageProcessingAsyncTask imagProcessingTask;
     DBManager dbManager = DBManager.getInstance();
 
 
@@ -51,12 +53,16 @@ public class ImageChoiceFragment extends Fragment{
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-
+        callBackListener = (CallBackListener) getActivity();
         pictureManager = new PictureManager(thisContext);
 
         View view = inflater.inflate(R.layout.fragment_image_choice, container, false);
         ratingBar = view.findViewById(R.id.ratingbar);
         showingImg = view.findViewById(R.id.preview_img);
+
+        showingImg.setBackground(getResources().getDrawable(R.drawable.round_fg));
+        showingImg.setClipToOutline(true);
+
         showingImg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -80,6 +86,8 @@ public class ImageChoiceFragment extends Fragment{
                         .show();
             }
         });
+
+
         return view;
     }
 
@@ -134,8 +142,8 @@ public class ImageChoiceFragment extends Fragment{
                     dbManager.generatorId = "admin";
                     try{
                         inputImage=MediaStore.Images.Media.getBitmap(thisContext.getContentResolver(),albumURI);
-                        myAsyncTask = new CheckingAsyncTask();
-                        myAsyncTask.execute();
+                        imagProcessingTask = new ImageProcessingAsyncTask();
+                        imagProcessingTask.execute();
                     }catch(FileNotFoundException e){
                         // TODO Auto-generated catch block
                         e.printStackTrace();
@@ -160,7 +168,7 @@ public class ImageChoiceFragment extends Fragment{
         }
     }
 
-    public class CheckingAsyncTask extends AsyncTask<Double, Void, Double> {
+    public class ImageProcessingAsyncTask extends AsyncTask<Double, Void, Double> {
         MaterialDialog.Builder builder = null;
         MaterialDialog materialDialog = null;
 
@@ -180,7 +188,7 @@ public class ImageChoiceFragment extends Fragment{
             super.onPostExecute(value);
             materialDialog.dismiss();
             dbManager.markerRating = value;
-            Toast.makeText(thisContext,"유효성 검사가 완료되었습니다.",Toast.LENGTH_SHORT).show();
+            Toast.makeText(thisContext,"유효성 검사가 완료되었습니다."+String.valueOf(value),Toast.LENGTH_SHORT).show();
             ratingBar.setVisibility(View.VISIBLE);
             ratingBar.setRating(value.floatValue());
 
@@ -188,6 +196,7 @@ public class ImageChoiceFragment extends Fragment{
             nextStepBtn.setClickable(true);
             nextStepBtn.setEnabled(true);
             Log.d("asyctask result",value+"");
+            callBackListener.onDoneBack();
         }
 
         @Override
