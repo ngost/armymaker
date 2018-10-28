@@ -1,0 +1,104 @@
+{
+  "project_info": {
+    "project_number": "206767239201",
+    "firebase_url": "https://my-first-project-7e28c.firebaseio.com",
+    "project_id": "my-first-project-7e28c",
+    "storage_bucket": "my-first-project-7e28c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:206767239201:android:359eaeb81791031f",
+        "android_client_info": {
+          "package_name": "com.curonsys.android_java"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "206767239201-vl9evr1ug4chp2s8g8iutd2qhd4653js.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBZ6rBVjTc9zDYl89b1hbRuD2AkSFIzoB8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:206767239201:android:6df9fb42cf910582",
+        "android_client_info": {
+          "package_name": "com.curonsys.flutterstart"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "206767239201-vl9evr1ug4chp2s8g8iutd2qhd4653js.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBZ6rBVjTc9zDYl89b1hbRuD2AkSFIzoB8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:206767239201:android:161a47e54a626935",
+        "android_client_info": {
+          "package_name": "com.curonsys.testand"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "206767239201-vl9evr1ug4chp2s8g8iutd2qhd4653js.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBZ6rBVjTc9zDYl89b1hbRuD2AkSFIzoB8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

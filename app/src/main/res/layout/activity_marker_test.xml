@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.curonsys.army.MarkerTestActivity">
+    tools:context="com.curonsys.android_java.activity.MarkerTestActivity">
     <SeekBar
         android:max="600"
         android:id="@+id/scaleSeekbar"

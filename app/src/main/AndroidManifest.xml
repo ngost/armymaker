@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.curonsys.army">
+    package="com.curonsys.android_java">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -22,22 +22,23 @@
         android:theme="@style/AppTheme">
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyB-kiliIyH5emSDUB_4tcycMMp32a03kgM"/>
-            <!--android:value="AIzaSyA_U_GAcVQpTOyvN6jnlj6DUgopfNgtvPs"-->
+            android:value="AIzaSyBtR7evZwmqKa955ABOMUVL64rwnixe_PA"/>
+<!--        android:value="AIzaSyB-kiliIyH5emSDUB_4tcycMMp32a03kgM"/>
+            android:value="AIzaSyA_U_GAcVQpTOyvN6jnlj6DUgopfNgtvPs"-->
 
-        <activity android:name=".MainActivity">
+        <activity android:name="com.curonsys.android_java.activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MarkerGenerationActivity" />
-        <activity android:name=".GeneralUserActivity" />
+        <activity android:name="com.curonsys.android_java.activity.MarkerGenerationActivity" />
+        <activity android:name="com.curonsys.android_java.activity.GeneralUserActivity" />
 
         <provider
             android:name="android.support.v4.content.FileProvider"
-            android:authorities="com.curonsys.army"
+            android:authorities="com.curonsys.android_java"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
@@ -45,7 +46,7 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <activity android:name=".MarkerTestActivity"></activity>
+        <activity android:name="com.curonsys.android_java.activity.MarkerTestActivity"></activity>
     </application>
 
 </manifest>

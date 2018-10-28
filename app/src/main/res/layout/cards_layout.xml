@@ -22,8 +22,8 @@
             <ImageView
                 android:id="@+id/imageView"
                 android:tag="image_tag"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 android:layout_margin="5dp"
                 android:layout_weight="1"
                 android:src="@drawable/ic_launcher"/>

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.curonsys.army.MainActivity">
+    tools:context="com.curonsys.android_java.activity.MainActivity">
 
     <Button
         android:text="광고주"
