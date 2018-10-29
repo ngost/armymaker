@@ -138,7 +138,7 @@ public class ContentsChoiceFragment extends Fragment {
                     @Override
                     public void onResponse(ArrayList<ContentModel> response) {
                         contentsModel = response;
-                        Log.d("response Check",contentsModel.toString());
+                        Log.d("response Check",contentsModel.size()+"");
                         adapter = new CustomAdapter(contentsModel);
                         recyclerView.setAdapter(adapter);
                     }

@@ -8,30 +8,22 @@ import java.util.Map;
 public class ContentModel implements Serializable {
     private String mContentId;
     private String mName;
-    private String mModel;
-    private ArrayList<String> mTextures;
+    private String mDescription;
     private boolean m3D;
     private boolean mAnimation;
-    private String mFormat;
-    private ArrayList<Float> mRotation;
-    private Number mScale;
-    private String mVersion;
-    private String mDescribe="설명 없음";
-    private String mThumb = "/";
+    private String mModel;
+    private String mThumb;
+    private ArrayList<String> mTextures;
 
     public ContentModel() {
         mContentId = "";
         mName = "";
-        mModel = new String();
-        mTextures = new ArrayList<String>();
+        mDescription = "";
         m3D = true;
         mAnimation = true;
-        mFormat = "";
-        mRotation = new ArrayList<Float>();
-        mScale = 0;
-        mVersion = "0.0.0";
-        mDescribe = "";
+        mModel = "";
         mThumb = "";
+        mTextures = new ArrayList<String>();
     }
 
     public ContentModel(Map<String, Object> data) {
@@ -47,63 +39,40 @@ public class ContentModel implements Serializable {
             mName = "";
         }
 
+        if (data.containsKey("describe")) {
+            mDescription = (String) data.get("describe");
+        } else {
+            mDescription = "";
+        }
+
+        if (data.containsKey("3d")) {
+            m3D = (boolean) data.get("3d");
+        } else {
+            m3D = true;
+        }
+
+        if (data.containsKey("animation")) {
+            mAnimation = (boolean) data.get("animation");
+        } else {
+            mAnimation = false;
+        }
+
         if (data.containsKey("model")) {
             mModel = (String) data.get("model");
         } else {
-            mModel = new String("/");
+            mModel = "";
+        }
 
-            if (data.containsKey("textures")) {
-                mTextures = (ArrayList<String>) data.get("textures");
-            } else {
-                mTextures = new ArrayList<String>();
-            }
+        if (data.containsKey("thumb")) {
+            mThumb = (String) data.get("thumb");
+        } else {
+            mThumb = "";
+        }
 
-            if (data.containsKey("3d")) {
-                m3D = (boolean) data.get("3d");
-            } else {
-                m3D = true;
-            }
-
-            if (data.containsKey("animation")) {
-                mAnimation = (boolean) data.get("animation");
-            } else {
-                mAnimation = false;
-            }
-
-            if (data.containsKey("format")) {
-                mFormat = (String) data.get("format");
-            } else {
-                mFormat = "";
-            }
-
-            if (data.containsKey("rotation")) {
-                mRotation = (ArrayList<Float>) data.get("rotation");
-            } else {
-                mRotation = new ArrayList<Float>();
-            }
-
-            if (data.containsKey("scale")) {
-                mScale = (Number) data.get("scale");
-            } else {
-                mScale = 0;
-            }
-
-            if (data.containsKey("version")) {
-                mVersion = (String) data.get("version");
-            } else {
-                mVersion = "";
-            }
-            //추가
-            if (data.containsKey("describe")) {
-                mDescribe = (String) data.get("describe");
-            } else {
-                mDescribe = "";
-            }
-            if (data.containsKey("thumb")) {
-                mThumb = (String) data.get("thumb");
-            } else {
-                mThumb = "";
-            }
+        if (data.containsKey("textures")) {
+            mTextures = (ArrayList<String>) data.get("textures");
+        } else {
+            mTextures = new ArrayList<String>();
         }
     }
 
@@ -119,12 +88,8 @@ public class ContentModel implements Serializable {
         return mName;
     }
 
-    public String getModelUrl() {
-        return mModel;
-    }
-
-    public ArrayList<String> getTextureUrls() {
-        return mTextures;
+    public String getDescription() {
+        return mDescription;
     }
 
     public boolean get3D() {
@@ -135,41 +100,29 @@ public class ContentModel implements Serializable {
         return mAnimation;
     }
 
-    public String getFormat() {
-        return  mFormat;
+    public String getModel() {
+        return  mModel;
     }
 
-    public ArrayList<Float> getRotation() {
-        return mRotation;
+    public String getThumb() {
+        return mThumb;
     }
 
-    public Number getContentScale() {
-        return mScale;
+    public ArrayList<String> getTextures() {
+        return mTextures;
     }
-
-    public String getVersion() {
-        return mVersion;
-    }
-
-    public String getThumb(){return mThumb;}
-
-    public String getDescribe(){return mDescribe;}
 
     public Map<String, Object> getData() {
         Map<String, Object> data = new HashMap<>();
 
         data.put("content_id", mContentId);
         data.put("name", mName);
-        data.put("model", mModel);
-        data.put("textures", mTextures);
+        data.put("describe", mDescription);
         data.put("3d", m3D);
         data.put("animation", mAnimation);
-        data.put("format", mFormat);
-        data.put("rotation", mRotation);
-        data.put("scale", mScale);
-        data.put("version", mVersion);
-        data.put("describe",mDescribe);
-        data.put("thumb",mThumb);
+        data.put("model", mModel);
+        data.put("thumb", mThumb);
+        data.put("textures", mTextures);
 
         return data;
     }

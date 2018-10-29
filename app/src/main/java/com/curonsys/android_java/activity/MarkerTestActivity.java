@@ -42,7 +42,7 @@ import static android.content.ContentValues.TAG;
 
 public class MarkerTestActivity extends ARActivity {
 
-    boolean test = false;
+    boolean contents_down_state = false;
     DBManager dbManager=DBManager.getInstance();
     String path;
     SeekBar scale_seekBar,rotate_x_seek,rotate_y_seek,rotate_z_seek;
@@ -53,7 +53,7 @@ public class MarkerTestActivity extends ARActivity {
     MaterialDialog.Builder builder = null;
     MaterialDialog materialDialog = null;
     ContentModel contentModel;
-    ArrayList<String> textures;
+    ArrayList<String> textures = new ArrayList<String>();
     String modelUrl;
 
     @Override
@@ -180,13 +180,13 @@ public class MarkerTestActivity extends ARActivity {
         completeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent();
+//                Intent intent = new Intent();
 
-                intent.putExtra("scale", String.valueOf(setScale));
-                setResult(1, intent);
+//                intent.putExtra("scale", String.valueOf(setScale));
+//                setResult(1, intent);
 
 //                finish();
-                setup();
+//                setup();
             }
         });
     }
@@ -202,30 +202,44 @@ public class MarkerTestActivity extends ARActivity {
                 contentModel = response;
 
                 try {
-                    String url = contentModel.getModelUrl();
+                    String url = contentModel.getModel();
                     String suffix = url.substring(url.indexOf('.'), url.length());
                     RequestManager mRequestManager = RequestManager.getInstance();
                     mRequestManager.requesetDownloadFileFromStorage(contentModel.getContentName(), url, suffix, new RequestManager.TransferCallback() {
                         @Override
                         public void onResponse(TransferModel response) {
                             if (response.getSuffix().compareTo(".jet") == 0) {
-                                modelUrl = response.getPath();
-                                Log.d("model file:",modelUrl.toString());
+                                //modelUrl = response.getPath();
+                                //Log.d("model file:",modelUrl.toString());
+                                String model_file_name=response.getPath().substring(response.getPath().lastIndexOf("/")+1,response.getPath().length()-4);
+                                Log.d("getModel_name",model_file_name);
+                                try {
+                                    FileInputStream file_readed = new FileInputStream(new File(response.getPath()));
+                                    saveTemptoJet(file_readed,contentModel.getContentName(),model_file_name);
+                                }catch (FileNotFoundException e){
+                                    e.printStackTrace();
+                                }
+
+
                             }
                             Log.d(TAG, "onResponse: content download complete ");
+
+                            //contetns Model down confirm and
+                            try{
+                                Log.d("markertest",contentModel.toString());
+
+                                for(int i=0;i<contentModel.getTextures().size();i++){
+                                    getImage(contentModel.getContentName(),contentModel.getTextures().get(i));
+                                }
+                            }catch (NullPointerException e){
+                                e.printStackTrace();
+                            }
+
                         }
                     });
                 }catch (StringIndexOutOfBoundsException e){e.printStackTrace();}
 
-                try{
-                    Log.d("markertest",contentModel.toString());
 
-                    for(int i=0;i<contentModel.getTextureUrls().size();i++){
-                        getImage(contentModel.getContentName(),contentModel.getTextureUrls().get(i));
-                    }
-                }catch (NullPointerException e){
-                    e.printStackTrace();
-                }
 
             }
         });
@@ -236,7 +250,8 @@ public class MarkerTestActivity extends ARActivity {
     public void setup() {
 //        materialDialog.show();
 
-        if(test && contentModel!=null){
+        if(contents_down_state && contentModel!=null){
+            Log.d("setup","called");
 
             path = dbManager.imageURI.toString();
             //step1, 추적 가능한 이미지를 등록해라. 여기서 해야 할 일은 Trackable 객체 만들기, Tracker 생성
@@ -245,11 +260,11 @@ public class MarkerTestActivity extends ARActivity {
             imageTrackable = new ARImageTrackable("MarkerForAR");
             //에셋에서 이미지 로딩
             File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), "kudan");
-            Log.d("123123", file.getAbsolutePath());
+            //Log.d("123123", file.getAbsolutePath());
             if (path != null) {
                 Uri uri = Uri.parse(path);
                 imageTrackable.loadFromPath(uri.getPath());
-                Log.d("uri",uri.getPath());
+                Log.d("marker_path",uri.getPath());
             } else {
                 Toast.makeText(getApplicationContext(), "마커를 먼저 등록해주세요.", Toast.LENGTH_LONG).show();
             }
@@ -284,6 +299,7 @@ public class MarkerTestActivity extends ARActivity {
                 ARTexture2D texture2D = new ARTexture2D();
                 if(textures.size()<2){
 //                    texture2D.loadFromAsset(dbManager.contentTextureFiles[0]);
+                    Log.d("textures_path",textures.get(0));
                     texture2D.loadFromPath(textures.get(0));
                 }
                 //model info[1]
@@ -323,8 +339,8 @@ public class MarkerTestActivity extends ARActivity {
                 HashMap<String,ARLightMaterial> materialMap = new HashMap();
 
                 for(i=0;i<textures.size();i++){
-                    Log.d("null i",i+"");
-                    Log.d("null value",textures.get(i));
+                    Log.d("textures's",i+"");
+                    Log.d("textures_path",textures.get(i));
                     texture2DS[i] = new ARTexture2D();
 //                    texture2DS[i].loadFromAsset(dbManager.contentTextureFiles[i]);
                     texture2DS[i].loadFromPath(textures.get(i));
@@ -373,15 +389,17 @@ public class MarkerTestActivity extends ARActivity {
                     }
                 }
             });
-            test = false;
+            contents_down_state = true;
         }
         else {
-            test = true;
+            contents_down_state = false;
         }
     }
     public void getImage(final String name, String url){
         try {
             String suffix = url.substring(url.indexOf('.'), url.length());
+            Log.d("texture_request_suffix",suffix);
+            Log.d("texture_request_url",url);
             RequestManager mRequestManager = RequestManager.getInstance();
             mRequestManager.requesetDownloadFileFromStorage(name, url, suffix, new RequestManager.TransferCallback() {
                 @Override
@@ -389,9 +407,17 @@ public class MarkerTestActivity extends ARActivity {
                     if (response.getSuffix().compareTo(".jpg") == 0 || response.getSuffix().compareTo(".png") == 0) {
                         Bitmap downBitmap = BitmapFactory.decodeFile(response.getPath());
                         //imgView.setImageBitmap(downBitmap);
-                        saveBitmaptoJpeg(downBitmap,name,response.getName());
+
+                        String texture_file_name=response.getPath().substring(response.getPath().lastIndexOf("/")+1,response.getPath().length()-4);
+                        Log.d("getTexture_name",texture_file_name);
+                        saveBitmaptoJpeg(downBitmap,name,texture_file_name);
                     }
                     Log.d(TAG, "onResponse: content download complete ");
+                    String texture_url = response.getPath();
+                    //Log.d("texture_path",texture_url);
+                    //textures.add(texture_url);
+                    contents_down_state =true;
+                    setup();
                 }
             });
         }catch (StringIndexOutOfBoundsException e){e.printStackTrace();}
@@ -435,6 +461,36 @@ public class MarkerTestActivity extends ARActivity {
         }catch (StringIndexOutOfBoundsException e){e.printStackTrace();}
     }*/
 
+    public void saveTemptoJet(FileInputStream file_input,String folder, String name){
+        String ex_storage =Environment.getExternalStorageDirectory().getAbsolutePath(); // Get Absolute Path in External Sdcard
+        String foler_name = "/kudan/"+folder+"/";
+        String file_name = name+".jet";
+        String string_path = ex_storage+foler_name;
+        File file_path;
+        try{
+            file_path = new File(string_path);
+            if(!file_path.isDirectory()){
+                file_path.mkdirs();
+            }
+            FileOutputStream out = new FileOutputStream(string_path+file_name);
+            int data;
+            while ((data = file_input.read()) != -1) {
+                // TODO : use data
+                out.write(data);
+            }
+            file_input.close();
+            out.close();
+            file_input.close();
+//            textures.add(string_path+file_name);
+            modelUrl = string_path+file_name;
+            Log.d("model_path",string_path+file_name);
+
+        }catch(FileNotFoundException exception){
+            Log.e("FileNotFoundException", exception.getMessage());
+        }catch(IOException exception){
+            Log.e("IOException", exception.getMessage());
+        }
+    }
     public void saveBitmaptoJpeg(Bitmap bitmap,String folder, String name){
         String ex_storage =Environment.getExternalStorageDirectory().getAbsolutePath(); // Get Absolute Path in External Sdcard
         String foler_name = "/kudan/"+folder+"/";
@@ -448,7 +504,8 @@ public class MarkerTestActivity extends ARActivity {
             }
             FileOutputStream out = new FileOutputStream(string_path+file_name);
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out); out.close();
-            textures.add(string_path);
+            textures.add(string_path+file_name);
+            //Log.d("textures_path",string_path+file_name);
         }catch(FileNotFoundException exception){
             Log.e("FileNotFoundException", exception.getMessage());
         }catch(IOException exception){

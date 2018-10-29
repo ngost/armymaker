@@ -30,8 +30,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         FirebaseApp.initializeApp(this);
         ARAPIKey key = ARAPIKey.getInstance();
-        key.setAPIKey("lNNBHsE9P8I7VtEZ4Y/NnO0Vs+CkOdKQDdfP2JfLRBqZigQ3iQaaC7mnxCYwatWKMrXVCRk8U972dXK7qFbAC+b7cHk5tiDufSXLKOE9ZGEu5PebF7HDc+zSE18WfthhZHbyL9VWk5/2EO7dLO8Y5WVaADfc2aIs3ITuJ+FtrzjsfzsbTKjwDdkzrxDBOX4DQRO4yB0S2RP6dmPkkf2bjAqj704C/mM6iXm2ARZDLzgzm83oosCv3v4nYGdIBCz+9BASSljzLy2/2H3wXj7N9dk0YVGSNMzy59yyZZv/TaZ1f8m8crfXjyRlZy8tcFCr9SzZxTXMpz2SCCFy7SxBx5Tkv0nJPhOwiLXXaKumwdMDsZAmeUk5W/EDmFTVjQdXOGvIRwG4Xxg3uoWCBR1Dx49OLf8GnkHdU+ogbARjYeqBnDx3eNDaS6bYCtzUhf6PF15atk5r94oPIyi+89CQ+bD7MO7Fm5USv6pwJ2Hl4h+LYc54nLq39ZRVH1ScSPzTA/tycwQ6/2m7VBaU9q51B0jZwFyfiXW1OFUouKPgY0w1roJGxaVKX2QYJgr0sVv05GXoP2pjwFY7wwWhJ+uTWNUj6Nk0Zj/ejXJLBvq1EnuLBlsqh+7SwmZSo99qSymDMQwEAEh4smDXjd0dDEUyEyUpGvZfgHBakvlWpp3M8OY=");
-
+        key.setAPIKey("JvTam0rZCqbJkMEJZuB4KevXbV0/CquncYpJU0FKx5PA+3miHVsmmBeUEepbEpH+RzFK4VPDJ4DzYOXixEO3ZGDiZkVR/AH2XegPgwIqMJlsSAtAvVErFXsQaOEYlq8SF4kvkEQgrlgXrJY/t6cDuxdBp5ecgf68eI+1KU8ObwjK8YQbXv+6s/3GSL6lVyVo62o2Sv2QkUfZEpjrl5hI1rzjJ70aNfpy0ddZgJSMNUF5gbsk+dtoFETdvmCDhlC58w2E23r8h+XpEvMZslkMFKlY/5zq7x4YSkYcEbAw4KTDsOj63dbO2lld49TOG2Bo3JHoIRgf5kFa03xj0JrQBsxG/gHhNQwYJGqMAhVSNvZEIQKRsS9UTmXOzsjysU8zpPoRuAbhXQAyUnkc7jdIGO49cSoVjR+QGx8bmpLlpxphNu90b1up75IJvrY/fX/EF7LgTfk5tXMRXhpdX90dAdtFiwSZYlcmY6bc/uxC9IqbwGeEQuw7508fte/7h3wBrvoRqS5948giz6VfR6Hxz7lPcwG4sYVPRKc4QsQm9DK8Ac5+QJWUwRUjClfJ0y59kDPoB/M4t2kOBlaJAHeSgijQor1IgXFGEIlLxRbf5qgWfjdGie2yeb84CrcGvCzt6IwltqrD4WbcI+HAJAJogY82hKhMEgJaulqpSIvlKQY=");
         PermissionManager permissionManager = new PermissionManager(this);
         permissionManager.permissionCheck();
         mAuth = FirebaseAuth.getInstance();

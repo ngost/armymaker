@@ -73,8 +73,8 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
         LinearLayout linearLayout = holder.linearLayout;
 
         textViewName.setText(dataSet.get(listPosition).getContentName());
-        textViewVersion.setText(dataSet.get(listPosition).getDescribe());
-        Log.d("describe 테스트",dataSet.get(listPosition).getDescribe());
+        textViewVersion.setText(dataSet.get(listPosition).getDescription());
+        Log.d("describe 테스트",dataSet.get(listPosition).getDescription());
         setImage(dataSet.get(listPosition).getContentName(),dataSet.get(listPosition).getThumb(),imageView);
 
 //        try
