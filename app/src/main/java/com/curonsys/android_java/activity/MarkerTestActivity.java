@@ -9,11 +9,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.curonsys.android_java.CallBackListener;
 import com.curonsys.android_java.R;
 import com.curonsys.android_java.http.RequestManager;
 import com.curonsys.android_java.model.ContentModel;
@@ -45,7 +47,8 @@ public class MarkerTestActivity extends ARActivity {
     boolean contents_down_state = false;
     DBManager dbManager=DBManager.getInstance();
     String path;
-    SeekBar scale_seekBar,rotate_x_seek,rotate_y_seek,rotate_z_seek;
+    SeekBar scale_seekBar;
+    ImageButton uxbtn,dxbtn,uybtn,dybtn,uzbtn,dzbtn;
     float scaleValue = 1.0f;
     ARModelNode node3d;
     Button completeBtn;
@@ -55,57 +58,110 @@ public class MarkerTestActivity extends ARActivity {
     ContentModel contentModel;
     ArrayList<String> textures = new ArrayList<String>();
     String modelUrl;
-
+    CallBackListener callBackListener;
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_marker_test);
+    protected void onCreate(final Bundle savedInstanceState) {
+
+
 
         getContentsFiles();
 
-  //      ARAPIKey key = ARAPIKey.getInstance();
-//        key.setAPIKey("lNNBHsE9P8I7VtEZ4Y/NnO0Vs+CkOdKQDdfP2JfLRBqZigQ3iQaaC7mnxCYwatWKMrXVCRk8U972dXK7qFbAC+b7cHk5tiDufSXLKOE9ZGEu5PebF7HDc+zSE18WfthhZHbyL9VWk5/2EO7dLO8Y5WVaADfc2aIs3ITuJ+FtrzjsfzsbTKjwDdkzrxDBOX4DQRO4yB0S2RP6dmPkkf2bjAqj704C/mM6iXm2ARZDLzgzm83oosCv3v4nYGdIBCz+9BASSljzLy2/2H3wXj7N9dk0YVGSNMzy59yyZZv/TaZ1f8m8crfXjyRlZy8tcFCr9SzZxTXMpz2SCCFy7SxBx5Tkv0nJPhOwiLXXaKumwdMDsZAmeUk5W/EDmFTVjQdXOGvIRwG4Xxg3uoWCBR1Dx49OLf8GnkHdU+ogbARjYeqBnDx3eNDaS6bYCtzUhf6PF15atk5r94oPIyi+89CQ+bD7MO7Fm5USv6pwJ2Hl4h+LYc54nLq39ZRVH1ScSPzTA/tycwQ6/2m7VBaU9q51B0jZwFyfiXW1OFUouKPgY0w1roJGxaVKX2QYJgr0sVv05GXoP2pjwFY7wwWhJ+uTWNUj6Nk0Zj/ejXJLBvq1EnuLBlsqh+7SwmZSo99qSymDMQwEAEh4smDXjd0dDEUyEyUpGvZfgHBakvlWpp3M8OY=");
-        scale_seekBar = findViewById(R.id.scaleSeekbar);
-        rotate_x_seek = findViewById(R.id.rotate_x_seek);
-        rotate_y_seek = findViewById(R.id.rotate_y_seek);
-        rotate_z_seek = findViewById(R.id.rotate_z_seek);
-        builder = new MaterialDialog.Builder(getApplicationContext())
-                .title("유효성 검사중")
-                .content("시간이 조금 걸릴 수 있습니다...")
-                .progress(true,0);
-        materialDialog = builder.build();
+        super.onCreate(savedInstanceState);
 
-        completeBtn  = findViewById(R.id.completeBtn);
-        scale_seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        callBackListener = new CallBackListener() {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                Log.d("seekbar Value",progress+"");
-                scaleValue = Float.parseFloat(String.valueOf(progress))/100;
-                Log.d("scaleValue",scaleValue+"");
+            public void onDoneBack() {
+                setup();
+                setContentView(R.layout.activity_marker_test);
+                scale_seekBar = findViewById(R.id.scaleSeekbar);
+                uxbtn = findViewById(R.id.arrow_ux);
+                dxbtn = findViewById(R.id.arrow_dx);
+                uybtn = findViewById(R.id.arrow_uy);
+                dybtn = findViewById(R.id.arrow_dy);
+                uzbtn = findViewById(R.id.arrow_uz);
+                dzbtn = findViewById(R.id.arrow_dz);
+                builder = new MaterialDialog.Builder(getApplicationContext())
+                        .title("유효성 검사중")
+                        .content("시간이 조금 걸릴 수 있습니다...")
+                        .progress(true,0);
+                materialDialog = builder.build();
+
+                completeBtn  = findViewById(R.id.completeBtn);
+                scale_seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                        Log.d("seekbar Value",progress+"");
+                        scaleValue = Float.parseFloat(String.valueOf(progress))/50;
+                        scaleValue = scaleValue * scaleValue;
+                        Log.d("scaleValue",scaleValue+"");
 //                Vector3f scales = node3d.getScale();
-                float newX;
-                float newY;
-                float newZ;
-                newX = 1 * scaleValue;
-                newY = 1 * scaleValue;
-                newZ = 1 * scaleValue;
-                setScale = newX;
-                node3d.setScale(newX,newY,newZ);
+                        float newX;
+                        float newY;
+                        float newZ;
+                        newX = 1 * scaleValue;
+                        newY = 1 * scaleValue;
+                        newZ = 1 * scaleValue;
+                        setScale = newX;
+                        node3d.setScale(newX,newY,newZ);
 
-            }
+                    }
 
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
+                    @Override
+                    public void onStartTrackingTouch(SeekBar seekBar) {
 
-            }
+                    }
 
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
+                    @Override
+                    public void onStopTrackingTouch(SeekBar seekBar) {
 
-            }
-        });
+                    }
+                });
 
-        rotate_x_seek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                uxbtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        setRotateX++;
+                        node3d.rotateByDegrees(45,1, 0, 0);
+                    }
+                });
+                dxbtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        setRotateX++;
+                        node3d.rotateByDegrees(-45,1, 0, 0);
+
+                    }
+                });
+                uybtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        setRotateY++;
+                        node3d.rotateByDegrees(45,0, 1, 0);
+                    }
+                });
+                dybtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        setRotateY++;
+                        node3d.rotateByDegrees(-45,0, 1, 0);
+                    }
+                });
+                uzbtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        setRotateZ++;
+                        node3d.rotateByDegrees(45,0, 0, 1);
+                    }
+                });
+                dzbtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        setRotateZ++;
+                        node3d.rotateByDegrees(-45,0, 0, 1);
+                    }
+                });
+
+        /*rotate_x_seek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if(Float.parseFloat(String.valueOf(progress))<1){
@@ -175,11 +231,15 @@ public class MarkerTestActivity extends ARActivity {
             public void onStopTrackingTouch(SeekBar seekBar) {
 
             }
-        });
+        });*/
 
-        completeBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+                completeBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        setRotateX = setRotateX%8;
+                        setRotateY = setRotateY%8;
+                        setRotateZ = setRotateZ%8;
+                        Toast.makeText(getApplicationContext(),setRotateX+""+','+setRotateY+""+','+setRotateZ+"",Toast.LENGTH_LONG).show();
 //                Intent intent = new Intent();
 
 //                intent.putExtra("scale", String.valueOf(setScale));
@@ -187,8 +247,10 @@ public class MarkerTestActivity extends ARActivity {
 
 //                finish();
 //                setup();
+                    }
+                });
             }
-        });
+        };
     }
 
     private void getContentsFiles() {
@@ -229,7 +291,10 @@ public class MarkerTestActivity extends ARActivity {
                                 Log.d("markertest",contentModel.toString());
 
                                 for(int i=0;i<contentModel.getTextures().size();i++){
-                                    getImage(contentModel.getContentName(),contentModel.getTextures().get(i));
+                                    Log.d("texture real name",contentModel.getTextures().get(i)+"");
+                                    String texture_url = contentModel.getTextures().get(i);
+
+                                    getImage(contentModel.getContentName(),texture_url,i,contentModel.getTextures().size()-1);
                                 }
                             }catch (NullPointerException e){
                                 e.printStackTrace();
@@ -281,15 +346,14 @@ public class MarkerTestActivity extends ARActivity {
 
 
 
-
             ARModelImporter arModelImporter = new ARModelImporter();
-
+            arModelImporter.loadFromPath(modelUrl);
             //model's file name
 
             if(textures.size()<2){
 
 //                arModelImporter.loadFromAsset(dbManager.contentFileName);
-                arModelImporter.loadFromPath(modelUrl);
+
                 //model info[0]
                 node3d = arModelImporter.getNode();
                 node3d.setName("somthing");
@@ -316,7 +380,6 @@ public class MarkerTestActivity extends ARActivity {
             else if (textures.size()>1){
                 //snake, animation
 //                arModelImporter.loadFromAsset(dbManager.contentFileName);
-                arModelImporter.loadFromPath(modelUrl);
 
                 node3d = arModelImporter.getNode();
                 node3d.setName("somthing");
@@ -348,19 +411,23 @@ public class MarkerTestActivity extends ARActivity {
                     material[i].setTexture(texture2DS[i]);
                     material[i].setColour(1,1,1);
                     material[i].setAmbient(0.8f,0.8f,0.8f);
-                    material[i].setName(String.valueOf(i));
+
+                    String material_name = textures.get(i).substring(textures.get(i).lastIndexOf("/")+1,textures.get(i).length()-4);
+                    material[i].setName(material_name);
+                    Log.d("material_name",material_name);
                     materialMap.put(material[i].getName(),material[i]);
                 }
 //            i = 0;
 
 
                 for(ARMeshNode meshNode : arModelImporter.getMeshNodes()){
-
                     String name = meshNode.getName();
+                    Log.d("mate_name",name);
+                    Log.d("\n",materialMap.toString());
                     meshNode.setMaterial(materialMap.get(name));
 
                 }
-                node3d.scaleByUniform(1.0f);
+                node3d.scaleByUniform(3.0f);
 
             }
 
@@ -395,7 +462,7 @@ public class MarkerTestActivity extends ARActivity {
             contents_down_state = false;
         }
     }
-    public void getImage(final String name, String url){
+    public void getImage(final String name, final String url, final int request_count, final int last_count){
         try {
             String suffix = url.substring(url.indexOf('.'), url.length());
             Log.d("texture_request_suffix",suffix);
@@ -408,7 +475,8 @@ public class MarkerTestActivity extends ARActivity {
                         Bitmap downBitmap = BitmapFactory.decodeFile(response.getPath());
                         //imgView.setImageBitmap(downBitmap);
 
-                        String texture_file_name=response.getPath().substring(response.getPath().lastIndexOf("/")+1,response.getPath().length()-4);
+                        //String texture_file_name=response.getPath().substring(response.getPath().lastIndexOf("/")+1,response.getPath().length()-4);
+                        String texture_file_name = url.substring(url.lastIndexOf("/")+1,url.length()-4);
                         Log.d("getTexture_name",texture_file_name);
                         saveBitmaptoJpeg(downBitmap,name,texture_file_name);
                     }
@@ -417,7 +485,13 @@ public class MarkerTestActivity extends ARActivity {
                     //Log.d("texture_path",texture_url);
                     //textures.add(texture_url);
                     contents_down_state =true;
-                    setup();
+                    //setup();
+
+                    //very important
+                    if(request_count == last_count){
+                        callBackListener.onDoneBack();
+                    }
+
                 }
             });
         }catch (StringIndexOutOfBoundsException e){e.printStackTrace();}
@@ -513,6 +587,8 @@ public class MarkerTestActivity extends ARActivity {
         }
 
     }
+
+
 }
 
 
