@@ -6,4 +6,6 @@ package com.curonsys.android_java;
 
 public interface CallBackListener {
     void onDoneBack();
+
+    void onSucces(String message);
 }

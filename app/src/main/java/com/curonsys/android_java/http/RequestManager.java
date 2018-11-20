@@ -1,5 +1,6 @@
 package com.curonsys.android_java.http;
 
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -30,12 +31,23 @@ import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.JsonHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
+import com.loopj.android.http.TextHttpResponseHandler;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import cz.msebera.android.httpclient.Header;
 
 import static com.curonsys.android_java.util.Constants.STORAGE_BASE_URL;
 
@@ -519,6 +531,62 @@ public class RequestManager {
                 TransferModel result = new TransferModel(values);
 
                 callback.onResponse(result);
+            }
+        });
+    }
+
+    public interface DjangoImageUploadCallback {
+        public void onCallback(JSONObject result);
+    }
+
+
+    public void uploadImageToDjango(File img_file, final DjangoImageUploadCallback callback) throws JSONException {
+
+//        File photo = new File(img_path.substring(7));
+
+        RequestParams params = new RequestParams();
+        try {
+            params.put("photo", img_file);
+        } catch(FileNotFoundException e) {}
+
+
+        DjangoClient.post("upload",params, new JsonHttpResponseHandler(){
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                super.onFailure(statusCode, headers, throwable, errorResponse);
+                callback.onCallback(null);
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                super.onSuccess(statusCode, headers, response);
+                callback.onCallback(response);
+            }
+
+        });
+
+    }
+
+    public void markerImageUpload(StorageReference storageReference, Bitmap bitmap, String filename){
+        StorageReference storageRef = mStorage.getReference();
+
+        StorageReference imagesRef = storageRef.child("images/"+filename);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        byte[] data = baos.toByteArray();
+
+        UploadTask uploadTask = imagesRef.putBytes(data);
+        uploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                // Handle unsuccessful uploads
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
+                // ...
             }
         });
     }

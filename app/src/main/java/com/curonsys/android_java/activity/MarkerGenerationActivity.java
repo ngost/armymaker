@@ -1,6 +1,7 @@
 package com.curonsys.android_java.activity;
 
 //마커 생성 프래그먼트 관리 엑티비티
+import android.app.Activity;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.graphics.Color;
@@ -20,6 +21,7 @@ import com.curonsys.android_java.fragment.ImageChoiceFragment;
 import com.curonsys.android_java.fragment.LocationChoiceFragment;
 import com.curonsys.android_java.fragment.MarkerConfirmFragment;
 import com.curonsys.android_java.util.DBManager;
+import com.curonsys.android_java.util.MarkerUploader;
 
 public class MarkerGenerationActivity extends AppCompatActivity implements CallBackListener {
     static final int FRAGMENT1 = 1;
@@ -29,10 +31,15 @@ public class MarkerGenerationActivity extends AppCompatActivity implements CallB
     int current_fragment=1;
     Button btn1,btn2;
     Button nextBtn;
-
+    Activity mActivity;
 
     Uri imageUri;
     Uri photoURI, albumURI;
+
+    @Override
+    public void onSucces(String message) {
+
+    }
 
     @Override
     public void onDoneBack() {
@@ -45,10 +52,10 @@ public class MarkerGenerationActivity extends AppCompatActivity implements CallB
 
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_marker_generation);
-
+        mActivity = this;
 
         nextBtn = findViewById(R.id.nextstepBtn);
 
@@ -86,6 +93,10 @@ public class MarkerGenerationActivity extends AppCompatActivity implements CallB
                         fragmentTransaction.commit();
                         nextBtn.setTextColor(Color.BLACK);
                         current_fragment = FRAGMENT4;
+                        break;
+                    case FRAGMENT4:
+                        MarkerUploader markerUploader = new MarkerUploader(mActivity);
+                        markerUploader.start();
                     default:
                         break;
 

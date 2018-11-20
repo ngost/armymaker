@@ -207,17 +207,21 @@ public class LocationChoiceFragment extends Fragment implements OnMapReadyCallba
     //        double altitude = location.getAltitude();   //고도//          float accuracy = location.getAccuracy();    //정확도//            String provider = location.getProvider();   //위치제공자
             materialDialog.dismiss();
 
-            LatLng currentLocation = new LatLng(latitude,longitude);
-            MarkerOptions markerOptions = new MarkerOptions();
-            markerOptions.position(currentLocation);
-            markerOptions.title("현재 위치");
-            markerOptions.snippet("ARZone");
-            //mMap.addMarker(markerOptions);
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(currentLocation));
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 16));
-            lm.removeUpdates(mLocationListener);  //  미수신할때는 반드시 자원해체를 해주어야 한다.
-            dbManager.currentLongtitude = longitude;
-            dbManager.currentLatitude = latitude;
+            try{
+                LatLng currentLocation = new LatLng(latitude,longitude);
+                MarkerOptions markerOptions = new MarkerOptions();
+                markerOptions.position(currentLocation);
+                markerOptions.title("현재 위치");
+                markerOptions.snippet("ARZone");
+                //mMap.addMarker(markerOptions);
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(currentLocation));
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 16));
+                lm.removeUpdates(mLocationListener);  //  미수신할때는 반드시 자원해체를 해주어야 한다.
+                dbManager.currentLongtitude = longitude;
+                dbManager.currentLatitude = latitude;
+            }catch (NullPointerException e){
+                e.printStackTrace();
+            }
         }
 
         public void onProviderDisabled(String provider) {

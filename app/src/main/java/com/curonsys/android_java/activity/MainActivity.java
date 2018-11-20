@@ -8,6 +8,7 @@ import android.widget.Button;
 
 import com.curonsys.android_java.PermissionManager;
 import com.curonsys.android_java.R;
+import com.curonsys.android_java.camera2basic.CameraActivity;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
@@ -52,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
         btn2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), GeneralUserActivity.class);
+                Intent intent = new Intent(getApplicationContext(), CameraActivity.class);
                 startActivity(intent);
 
             }

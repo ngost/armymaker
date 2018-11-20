@@ -9,6 +9,17 @@ import java.util.ArrayList;
  * Created by Leejuhwan on 2018-05-22.
  */
 
+import android.content.Context;
+import android.net.Uri;
+import android.util.Log;
+
+import java.net.URI;
+import java.util.ArrayList;
+
+/**
+ * Created by Leejuhwan on 2018-05-22.
+ */
+
 public class DBManager {
 
     //frag1
@@ -19,18 +30,18 @@ public class DBManager {
     //frag2
     public double currentLongtitude = 0;
     public double currentLatitude = 0;
-//    public String currentCountryCode = "";
-//    public String currentLocality = "";
-//    public String currentThoroughfare = "";
+    public String currentCountryCode = "";
+    public String currentLocality = "";
+    public String currentThoroughfare = "";
 
     //frag3
     public String contentId = "";
     public String contentName = "";
-//    public ArrayList<String> contentFile = "";
-//    public int textureCount = 0;
-//    public String[] contentTextureNames;
-//    public String[] contentTextureFiles;
-//    public Boolean contentHasAnimation = false;
+    public String contentFileName = "";
+    public int textureCount = 0;
+    public String[] contentTextureNames;
+    public String[] contentTextureFiles;
+    public Boolean contentHasAnimation = false;
 
     //frag4
     public float contentScale = 0;

@@ -1,6 +1,7 @@
 package com.curonsys.android_java.model;
 
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -125,5 +126,13 @@ public class ContentModel implements Serializable {
         data.put("textures", mTextures);
 
         return data;
+    }
+
+    public void setTextures(ArrayList<String> texturesUrl){
+        this.mTextures = texturesUrl;
+    }
+
+    public void setModel(String modelUrl){
+        this.mModel = modelUrl;
     }
 }
