@@ -540,29 +540,38 @@ public class RequestManager {
     }
 
 
-    public void uploadImageToDjango(File img_file, final DjangoImageUploadCallback callback) throws JSONException {
+    public void uploadImageToDjango(File img_file, String locality, String thoroughfare, final DjangoImageUploadCallback callback) throws JSONException {
 
 //        File photo = new File(img_path.substring(7));
+        DjangoClient.setTimeOut();
 
         RequestParams params = new RequestParams();
+
         try {
             params.put("photo", img_file);
         } catch(FileNotFoundException e) {}
 
+        params.put("locality",locality);
+        params.put("thoroughfare",thoroughfare);
 
-        DjangoClient.post("upload",params, new JsonHttpResponseHandler(){
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                super.onFailure(statusCode, headers, throwable, errorResponse);
-                callback.onCallback(null);
-            }
+        Log.d("locality",locality);
+        Log.d("thoroughfare",thoroughfare);
 
+        DjangoClient.post("test",params, new JsonHttpResponseHandler(){
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 super.onSuccess(statusCode, headers, response);
                 callback.onCallback(response);
             }
 
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                super.onFailure(statusCode, headers, throwable, errorResponse);
+                if(errorResponse ==null)
+                    Log.d("errorResponse","is null");
+                else
+                    callback.onCallback(errorResponse);
+            }
         });
 
     }

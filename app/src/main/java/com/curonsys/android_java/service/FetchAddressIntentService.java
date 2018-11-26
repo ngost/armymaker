@@ -66,13 +66,24 @@ public class FetchAddressIntentService extends IntentService {
                     "Latitude = " + location.getLatitude() + ", Longitude = " +
                     location.getLongitude(), illegalArgumentException);
         }catch (NullPointerException e){
+
+        }
+
+        //ADD CODE !
+        if (addresses == null){
             try{
                 addresses = geocoder.getFromLocation(DBManager.getInstance().currentLatitude,DBManager.getInstance().currentLongtitude,1);
-            }catch (IOException ee){}
+                Log.d("force_latit",DBManager.getInstance().currentLatitude+"");
+            }catch (IOException ee){
+                ee.printStackTrace();
+            }
         }
+
 
         // Handle case where no address was found.
         if (addresses == null || addresses.size()  == 0) {
+
+
             if (errorMessage.isEmpty()) {
                 errorMessage = getString(R.string.no_address_found);
                 Log.e(TAG, errorMessage);

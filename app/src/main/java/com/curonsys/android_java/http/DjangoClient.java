@@ -2,6 +2,7 @@ package com.curonsys.android_java.http;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
 /**
@@ -22,12 +23,18 @@ public class DjangoClient {
         client.get(getAbsoluteUrl(url), params, responseHandler);
     }
 
-    public static void post(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
+    public static void post(String url, RequestParams params, JsonHttpResponseHandler responseHandler) {
+        final int DEFAULT_TIMEOUT = 20 * 1000;
         client.post(getAbsoluteUrl(url), params, responseHandler);
     }
 
     private static String getAbsoluteUrl(String relativeUrl) {
         return BASE_URL + relativeUrl;
+    }
+
+    public static void setTimeOut(){
+        final int DEFAULT_TIMEOUT = 30 * 1000;
+        client.setTimeout(DEFAULT_TIMEOUT);
     }
 
 }

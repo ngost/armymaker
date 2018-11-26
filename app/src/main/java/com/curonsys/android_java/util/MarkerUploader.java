@@ -73,8 +73,10 @@ public class MarkerUploader {
     private String mOutput = "";
 
     private ArrayList<String> myDataset;
-    MaterialDialog.Builder builder = null;
     MaterialDialog materialDialog = null;
+    MaterialDialog.Builder builder = null;
+
+    boolean for_upload = true;
 
     public MarkerUploader(Activity activity){
         this.mContext = activity;
@@ -93,10 +95,12 @@ public class MarkerUploader {
         String str = "Location Tracking..";
         myDataset.add(str);
     }
-    public void start(){
+    public void start(boolean for_upload_state){
+        this.for_upload = for_upload_state;
         startMarkerAddressIntentService();
         startFetchAddressIntentService();
-        showDialog("잠시만 기다려주세요.\n마커를 등록중입니다...");
+
+
     }
 
     private void uploadMarkerImage() {
@@ -296,7 +300,11 @@ public class MarkerUploader {
                 mDBManager.currentThoroughfare = resultData.getString(Constants.RESULT_THOROUGHFARE_KEY);
 
                 // upload marker image to storage
-                uploadMarkerImage();
+                if(for_upload){
+                    showDialog("잠시만 기다려주세요.\n마커를 등록중입니다...");
+                    uploadMarkerImage();
+                }
+
             }
         }
     }
@@ -336,6 +344,8 @@ public class MarkerUploader {
                 .progress(true,0);
         materialDialog = builder.build();
         materialDialog.show();
+
+
     }
 
 

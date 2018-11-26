@@ -16,22 +16,76 @@
 
 package com.curonsys.android_java.camera2basic;
 
+import android.app.Fragment;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.WindowManager;
+import android.widget.Toast;
 
+import com.curonsys.android_java.CallBackListener;
 import com.curonsys.android_java.R;
 
-public class CameraActivity extends AppCompatActivity {
+public class CameraActivity extends AppCompatActivity implements CallBackListener {
+    Camera2BasicFragment cameraFrag;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
         if (null == savedInstanceState) {
+            cameraFrag = Camera2BasicFragment.newInstance();
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.container, Camera2BasicFragment.newInstance())
                     .commit();
         }
+
+//        CallBackListener callBackListener = new CallBackListener() {
+//            @Override
+//            public void onDoneBack() {
+//
+//            }
+//
+//            @Override
+//            public void onSucces(String message) {
+//
+//                switch (message){
+//                    case "capture":
+//                        Log.d("captured","sucess");
+//                        cameraFrag.initLoaction();
+//                        break;
+//                    case "location":
+//                        cameraFrag.uploadData();
+//                        break;
+//                    case "upload":
+//                        Toast.makeText(getApplicationContext(),cameraFrag.getMarkerUrl(),Toast.LENGTH_LONG).show();
+//                }
+//
+//            }
+//        };
+    }
+
+    @Override
+    public void onDoneBack() {
+
+    }
+
+    @Override
+    public void onSucces(String message) {
+
+        switch (message){
+            case "capture":
+                Log.d("capture","sucess");
+//                cameraFrag.initLoaction(this);
+                cameraFrag.uploadData(this);
+                break;
+            case "upload":
+                Log.d("upload","sucess");
+                Toast.makeText(getApplicationContext(),cameraFrag.getMarkerUrl(),Toast.LENGTH_LONG).show();
+        }
+
     }
 
 }

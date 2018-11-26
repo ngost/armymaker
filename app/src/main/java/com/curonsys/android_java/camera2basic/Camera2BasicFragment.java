@@ -39,11 +39,15 @@ import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.StreamConfigurationMap;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.media.Image;
 import android.media.ImageReader;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
@@ -59,8 +63,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
+import com.curonsys.android_java.CallBackListener;
 import com.curonsys.android_java.R;
 import com.curonsys.android_java.http.RequestManager;
+import com.curonsys.android_java.util.DBManager;
+import com.curonsys.android_java.util.MarkerUploader;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -86,7 +99,15 @@ public class Camera2BasicFragment extends Fragment
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
     private static final int REQUEST_CAMERA_PERMISSION = 1;
     private static final String FRAGMENT_DIALOG = "dialog";
+    private LocationManager lm;
     private boolean swich = false;
+    MaterialDialog.Builder builder = null;
+    MaterialDialog materialDialog = null;
+    CallBackListener callBackListener;
+    private static File capture_path;
+    private static String marker_url = "";
+    private static String contents_id = "";
+    private Activity mContext;
 
     static {
         ORIENTATIONS.append(Surface.ROTATION_0, 90);
@@ -134,11 +155,22 @@ public class Camera2BasicFragment extends Fragment
      * Max preview height that is guaranteed by Camera2 API
      */
     private static final int MAX_PREVIEW_HEIGHT = 1080;
+    private Context materialView;
 
     /**
      * {@link TextureView.SurfaceTextureListener} handles several lifecycle events on a
      * {@link TextureView}.
      */
+
+    @Override
+    public void onAttach(Activity activity) {
+        // TODO Auto-generated method stub
+        super.onAttach(activity);
+        mContext=activity;
+        //step 4
+
+    }
+
     private final TextureView.SurfaceTextureListener mSurfaceTextureListener
             = new TextureView.SurfaceTextureListener() {
 
@@ -250,8 +282,10 @@ public class Camera2BasicFragment extends Fragment
 
         @Override
         public void onImageAvailable(ImageReader reader) {
-            mBackgroundHandler.post(new ImageSaver(reader.acquireNextImage(), mFile));
+            uploadData(getActivity());
+            mBackgroundHandler.post(new ImageSaver(reader.acquireNextImage(), mFile, getActivity()));
         }
+
 
     };
 
@@ -432,6 +466,8 @@ public class Camera2BasicFragment extends Fragment
 
 
 
+        initLoaction(getActivity());
+
 
         return inflater.inflate(R.layout.fragment_camera2_basic, container, false);
     }
@@ -441,12 +477,18 @@ public class Camera2BasicFragment extends Fragment
         view.findViewById(R.id.picture).setOnClickListener(this);
         view.findViewById(R.id.info).setOnClickListener(this);
         mTextureView = (AutoFitTextureView) view.findViewById(R.id.texture);
+        materialView = view.getContext();
+
+
+        callBackListener = (CallBackListener) getActivity();
+
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mFile = new File(getActivity().getExternalFilesDir(null), "pic.jpg");
+
     }
 
     @Override
@@ -617,6 +659,8 @@ public class Camera2BasicFragment extends Fragment
             requestCameraPermission();
             return;
         }
+
+        //camera pixcel operate !!!!!!!!!!!!!!!!!!!!!!!!!!!중요
         setUpCameraOutputs(width/4, height/4);
         configureTransform(width/4, height/4);
         Activity activity = getActivity();
@@ -847,9 +891,18 @@ public class Camera2BasicFragment extends Fragment
                 public void onCaptureCompleted(@NonNull CameraCaptureSession session,
                                                @NonNull CaptureRequest request,
                                                @NonNull TotalCaptureResult result) {
-                    showToast("Saved: " + mFile);
+                    //showToast("Saved: " + mFile);
                     Log.d(TAG, mFile.toString());
+
+
+
+
                     unlockFocus();
+                    capture_path = mFile;
+//                    Log.d("captured",capture_path);
+
+//                    CallBackListener callBackListener = (CallBackListener) activity;
+//                    callBackListener.onSucces("capture");
                 }
             };
 
@@ -900,14 +953,7 @@ public class Camera2BasicFragment extends Fragment
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.picture: {
-                if(!swich){
                     takePicture();
-                    swich = true;
-                }else {
-                    uploadData();
-                }
-
-
                 break;
             }
             case R.id.info: {
@@ -923,25 +969,134 @@ public class Camera2BasicFragment extends Fragment
         }
     }
 
-    private void uploadData() {
+    public void uploadData(Activity activity) {
+
+        showDialog("마커 업로드중...",activity);
         RequestManager requestManager = new RequestManager();
-        try{
-            requestManager.uploadImageToDjango(mFile, new RequestManager.DjangoImageUploadCallback() {
-                @Override
-                public void onCallback(JSONObject result) {
-                    Log.d("Image upload Result:",result.toString());
-                    getMarkerData();
-                }
-            });
-        }catch (JSONException e) {
-            e.printStackTrace();
-        }catch (NullPointerException e){
-            e.printStackTrace();
+        DBManager mDBManager = DBManager.getInstance();
+
+        //위치 정보 가져옴
+
+        //마커 스캔(사진 업로드 및 결과
+
+        //showDialog("마커를 찾는중...");
+
+//        int i=0;
+//        while (i<10000){
+//            i++;
+//            continue;
+//
+//        }
+
+        Log.d("local",mDBManager.currentLocality.toString()+"noting");
+        Log.d("thorogh",mDBManager.currentThoroughfare.toString());
+
+        if(!mDBManager.currentLocality.equals("") && !mDBManager.currentThoroughfare.equals("")){
+            try{
+                Log.d("request","started");
+                requestManager.uploadImageToDjango(mFile, mDBManager.currentLocality,mDBManager.currentThoroughfare, new RequestManager.DjangoImageUploadCallback() {
+                    @Override
+                    public void onCallback(JSONObject response) {
+                        materialDialog.dismiss();
+                        Log.d("Image upload Result:",response.toString());
+                        try{
+                            marker_url = response.getString("marker_url");
+                            contents_id = response.getString("contents_id");
+                            if(marker_url.equals("null") || contents_id.equals("null")){
+                                showToast("마커를 찾지 못하였습니다...");
+                            }
+                        }catch (JSONException e){
+                            e.printStackTrace();
+                        }
+                        callBackListener.onSucces("upload");
+                    }
+                });
+            }catch (JSONException e) {
+                e.printStackTrace();
+            }catch (NullPointerException e){
+                e.printStackTrace();
+            }
         }
     }
+    public String getMarkerUrl(){
+        return this.marker_url;
+    }
 
-    private void getMarkerData(){
+    public void initLoaction(Activity activity){
+//        showDialog("위치를 가져오는 중입니다.");
+        lm = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
+        FusedLocationProviderClient fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(activity);
+
+        try {
+            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, // 등록할 위치제공자
+                    100, // 통지사이의 최소 시간간격 (miliSecond)
+                    1, // 통지사이의 최소 변경거리 (m)
+                    mLocationListener);
+            lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, // 등록할 위치제공자
+                    100, // 통지사이의 최소 시간간격 (miliSecond)
+                    1, // 통지사이의 최소 변경거리 (m)
+                    mLocationListener);
+        }catch (SecurityException e){
+            e.printStackTrace();
+        }
+
+
+
+    }
+
+    private final LocationListener mLocationListener = new LocationListener() {
+        public void onLocationChanged(Location location) {
+            //if location data is change, listener event alert.
+            DBManager mDBManager = DBManager.getInstance();
+
+            double longitude = location.getLongitude(); //경도
+            double latitude = location.getLatitude();   //위도
+            Log.d("long",longitude+"");
+            Log.d("lati",latitude+"");
+            //        double altitude = location.getAltitude();   //고도//          float accuracy = location.getAccuracy();    //정확도//            String provider = location.getProvider();   //위치제공자
+
+            try{
+                LatLng currentLocation = new LatLng(latitude,longitude);
+                MarkerOptions markerOptions = new MarkerOptions();
+                markerOptions.position(currentLocation);
+                //markerOptions.title("현재 위치");
+                //markerOptions.snippet("ARZone");
+                //mMap.addMarker(markerOptions);
+                lm.removeUpdates(mLocationListener);  //  미수신할때는 반드시 자원해체를 해주어야 한다.
+                mDBManager.currentLongtitude = longitude;
+                mDBManager.currentLatitude = latitude;
+
+                //materialDialog.dismiss();
+
+
+            }catch (NullPointerException e){
+                e.printStackTrace();
+            }
+
+            MarkerUploader uploader = new MarkerUploader(getActivity());
+            uploader.start(false);
+        }
+
+        public void onProviderDisabled(String provider) {
+            // Disabled시
+            Log.d("test", "onProviderDisabled, provider:" + provider);
+        }
+
+        public void onProviderEnabled(String provider) {
+            // Enabled시
+            Log.d("test", "onProviderEnabled, provider:" + provider);
+        }
+
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+            // 변경시
+            Log.d("test", "onStatusChanged, provider:" + provider + ", status:" + status + " ,Bundle:" + extras);
+        }
+    };
+
+
+    private void getMarkerData(String marker_id){
         //Todo...
+        showToast(marker_id);
     }
 
     private void setAutoFlash(CaptureRequest.Builder requestBuilder) {
@@ -949,6 +1104,8 @@ public class Camera2BasicFragment extends Fragment
             requestBuilder.set(CaptureRequest.CONTROL_AE_MODE,
                     CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH);
         }
+
+
     }
 
     /**
@@ -964,14 +1121,27 @@ public class Camera2BasicFragment extends Fragment
          * The file we save the image into.
          */
         private final File mFile;
+        private Activity activity;
 
-        ImageSaver(Image image, File file) {
+        CallBackListener callBackListener = (CallBackListener) activity;
+
+        ImageSaver(Image image, File file, Activity activity) {
             mImage = image;
             mFile = file;
+            this.activity = activity;
         }
 
         @Override
         public void run() {
+            MaterialDialog materialDialog;
+            MaterialDialog.Builder builder;
+            builder = new MaterialDialog.Builder(activity)
+                    .title("요청")
+                    .content("이미지 스캔중...")
+                    .progress(true,0);
+            materialDialog = builder.build();
+            //materialDialog.show();
+
             ByteBuffer buffer = mImage.getPlanes()[0].getBuffer();
             byte[] bytes = new byte[buffer.remaining()];
             buffer.get(bytes);
@@ -983,15 +1153,21 @@ public class Camera2BasicFragment extends Fragment
                 e.printStackTrace();
             } finally {
                 mImage.close();
+                //materialDialog.dismiss();
+
                 if (null != output) {
                     try {
+
                         output.close();
+
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
             }
         }
+
+
 
     }
 
@@ -1039,6 +1215,8 @@ public class Camera2BasicFragment extends Fragment
                     .create();
         }
 
+
+
     }
 
     /**
@@ -1073,4 +1251,13 @@ public class Camera2BasicFragment extends Fragment
         }
     }
 
+    public void showDialog(String msg,Activity activity){
+
+        builder = new MaterialDialog.Builder(materialView)
+                .title("요청")
+                .content(msg)
+                .progress(true,0);
+        materialDialog = builder.build();
+        materialDialog.show();
+    }
 }

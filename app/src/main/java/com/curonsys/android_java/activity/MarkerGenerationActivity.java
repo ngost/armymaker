@@ -96,7 +96,7 @@ public class MarkerGenerationActivity extends AppCompatActivity implements CallB
                         break;
                     case FRAGMENT4:
                         MarkerUploader markerUploader = new MarkerUploader(mActivity);
-                        markerUploader.start();
+                        markerUploader.start(true);
                     default:
                         break;
 
