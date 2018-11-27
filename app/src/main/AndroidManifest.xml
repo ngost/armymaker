@@ -43,7 +43,7 @@
             android:name="com.curonsys.android_java.activity.MarkerGenerationActivity"
             android:screenOrientation="portrait"/>
         <activity
-            android:name="com.curonsys.android_java.activity.GeneralUserActivity"
+            android:name="com.curonsys.android_java.activity.GeneralARActivity"
             android:screenOrientation="portrait"/>
 
         <provider

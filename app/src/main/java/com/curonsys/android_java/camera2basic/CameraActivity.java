@@ -17,6 +17,7 @@
 package com.curonsys.android_java.camera2basic;
 
 import android.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -25,6 +26,7 @@ import android.widget.Toast;
 
 import com.curonsys.android_java.CallBackListener;
 import com.curonsys.android_java.R;
+import com.curonsys.android_java.activity.GeneralARActivity;
 
 public class CameraActivity extends AppCompatActivity implements CallBackListener {
     Camera2BasicFragment cameraFrag;
@@ -83,7 +85,7 @@ public class CameraActivity extends AppCompatActivity implements CallBackListene
                 break;
             case "upload":
                 Log.d("upload","sucess");
-                Toast.makeText(getApplicationContext(),cameraFrag.getMarkerUrl(),Toast.LENGTH_LONG).show();
+//                Toast.makeText(getApplicationContext(),cameraFrag.getMarkerUrl(),Toast.LENGTH_LONG).show();
                 cameraFrag.showDialog("마커 정보를 가져오는 중입니다...",this);
                 cameraFrag.getMarkerModel((CallBackListener)this);
                 break;
@@ -117,9 +119,12 @@ public class CameraActivity extends AppCompatActivity implements CallBackListene
             case "textures":
                 cameraFrag.materialDialog.dismiss();
                 Log.e("getTextures :","sucess");
-                Toast.makeText(getApplicationContext(),"컨텐츠를 정상적으로 가져왔습니다",Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(),"컨텐츠를 정상적으로 가져왔습니다",Toast.LENGTH_SHORT).show();
                 cameraFrag.setContentsModel();
-                Toast.makeText(getApplicationContext(),"dd",Toast.LENGTH_LONG).show();
+                //Toast.makeText(getApplicationContext(),"dd",Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(this, GeneralARActivity.class);
+                intent.putExtra("contents_model",cameraFrag.contentModel_putExtra);
+                startActivity(intent);
                 break;
 
         }

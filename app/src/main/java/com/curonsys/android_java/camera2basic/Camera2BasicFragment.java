@@ -46,6 +46,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.Image;
 import android.media.ImageReader;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -1354,7 +1355,7 @@ public class Camera2BasicFragment extends Fragment
                         //String texture_file_name=response.getPath().substring(response.getPath().lastIndexOf("/")+1,response.getPath().length()-4);
                         String texture_file_name = url.substring(url.lastIndexOf("/")+1,url.length()-4);
                         Log.d("getTexture_name",texture_file_name);
-                        saveBitmaptoJpeg(downBitmap,name,texture_file_name);
+                        saveBitmaptoJpeg(downBitmap,name,texture_file_name,false);
                     }
                     Log.d(TAG, "onResponse: content download complete ");
                     String texture_url = response.getPath();
@@ -1390,7 +1391,7 @@ public class Camera2BasicFragment extends Fragment
                     Log.d("getTexture_name",texture_file_name);
 
                     // name to be folder name
-                    saveBitmaptoJpeg(downBitmap,name,texture_file_name);
+                    saveBitmaptoJpeg(downBitmap,name,texture_file_name,true);
                     cameraActivity.onSucces("markerImg");
                 }
             }
@@ -1455,7 +1456,7 @@ public class Camera2BasicFragment extends Fragment
             Log.e("IOException", exception.getMessage());
         }
     }
-    public void saveBitmaptoJpeg(Bitmap bitmap, String folder, String name){
+    public void saveBitmaptoJpeg(Bitmap bitmap, String folder, String name, boolean isMarker){
         String ex_storage =Environment.getExternalStorageDirectory().getAbsolutePath(); // Get Absolute Path in External Sdcard
         String foler_name = "/kudan/"+folder+"/";
         String file_name = name+".jpg";
@@ -1468,7 +1469,11 @@ public class Camera2BasicFragment extends Fragment
             }
             FileOutputStream out = new FileOutputStream(string_path+file_name);
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out); out.close();
-            textures.add(string_path+file_name);
+            if(isMarker){
+                DBManager.getInstance().imageURI = Uri.fromFile(new File(string_path+file_name));
+            }else {
+                textures.add(string_path + file_name);
+            }
             //Log.d("textures_path",string_path+file_name);
         }catch(FileNotFoundException exception){
             Log.e("FileNotFoundException", exception.getMessage());

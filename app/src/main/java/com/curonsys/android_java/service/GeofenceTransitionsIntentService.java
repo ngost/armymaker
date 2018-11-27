@@ -15,7 +15,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.curonsys.android_java.R;
-import com.curonsys.android_java.activity.GeneralUserActivity;
+import com.curonsys.android_java.activity.GeneralARActivity;
 import com.curonsys.android_java.util.MarkerUploader;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofenceStatusCodes;
@@ -95,7 +95,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
             mNotificationManager.createNotificationChannel(mChannel);
         }
 
-        Intent notificationIntent = new Intent(getApplicationContext(), GeneralUserActivity.class);    // ChooseActivity
+        Intent notificationIntent = new Intent(getApplicationContext(), GeneralARActivity.class);    // ChooseActivity
 
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
         stackBuilder.addParentStack(MarkerUploader.class);
