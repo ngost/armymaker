@@ -24,6 +24,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.Point;
@@ -45,6 +47,7 @@ import android.location.LocationManager;
 import android.media.Image;
 import android.media.ImageReader;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -67,6 +70,9 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.curonsys.android_java.CallBackListener;
 import com.curonsys.android_java.R;
 import com.curonsys.android_java.http.RequestManager;
+import com.curonsys.android_java.model.ContentModel;
+import com.curonsys.android_java.model.MarkerModel;
+import com.curonsys.android_java.model.TransferModel;
 import com.curonsys.android_java.util.DBManager;
 import com.curonsys.android_java.util.MarkerUploader;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -79,6 +85,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -89,6 +97,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+
+import static android.content.ContentValues.TAG;
 
 public class Camera2BasicFragment extends Fragment
         implements View.OnClickListener, ActivityCompat.OnRequestPermissionsResultCallback {
@@ -106,8 +116,13 @@ public class Camera2BasicFragment extends Fragment
     CallBackListener callBackListener;
     private static File capture_path;
     private static String marker_url = "";
-    private static String contents_id = "";
+    private static String marker_id = "";
     private Activity mContext;
+    ContentModel contentModel;
+    ArrayList<String> textures = new ArrayList<String>();
+    String modelUrl;
+    public int textureCount =0;
+    ContentModel contentModel_putExtra;
 
     static {
         ORIENTATIONS.append(Surface.ROTATION_0, 90);
@@ -973,7 +988,7 @@ public class Camera2BasicFragment extends Fragment
 
         showDialog("마커 업로드중...",activity);
         RequestManager requestManager = new RequestManager();
-        DBManager mDBManager = DBManager.getInstance();
+        final DBManager mDBManager = DBManager.getInstance();
 
         //위치 정보 가져옴
 
@@ -1001,14 +1016,17 @@ public class Camera2BasicFragment extends Fragment
                         Log.d("Image upload Result:",response.toString());
                         try{
                             marker_url = response.getString("marker_url");
-                            contents_id = response.getString("contents_id");
-                            if(marker_url.equals("null") || contents_id.equals("null")){
+                            marker_id = response.getString("contents_id");
+                            if(marker_url.equals("null") || marker_id.equals("null")){
                                 showToast("마커를 찾지 못하였습니다...");
+                            }else {
+
+                                //Log.d("contentId_check",contents_id+"111");
+                                callBackListener.onSucces("upload");
                             }
                         }catch (JSONException e){
                             e.printStackTrace();
                         }
-                        callBackListener.onSucces("upload");
                     }
                 });
             }catch (JSONException e) {
@@ -1107,6 +1125,8 @@ public class Camera2BasicFragment extends Fragment
 
 
     }
+
+
 
     /**
      * Saves a JPEG {@link Image} into the specified {@link File}.
@@ -1253,11 +1273,213 @@ public class Camera2BasicFragment extends Fragment
 
     public void showDialog(String msg,Activity activity){
 
-        builder = new MaterialDialog.Builder(materialView)
+        builder = new MaterialDialog.Builder(activity)
                 .title("요청")
                 .content(msg)
                 .progress(true,0);
         materialDialog = builder.build();
         materialDialog.show();
+    }
+
+    public void getMarkerModel(final CallBackListener callBackListener){
+        RequestManager requestManager = RequestManager.getInstance();
+        requestManager.requestGetMarkerInfo(marker_id, new RequestManager.MarkerCallback() {
+            @Override
+            public void onResponse(MarkerModel response) {
+                setContentsInfo(response);
+                callBackListener.onSucces("getMarkerModel");
+            }
+        });
+    }
+
+    public void setContentsInfo(MarkerModel markerModel){
+        String contentId = markerModel.getContentId();
+        ArrayList<Float> contentRota = markerModel.getContentRotation();
+        float contentScale = markerModel.getScale();
+        String markerUrl =  markerModel.getFile();
+        DBManager mDBManager = DBManager.getInstance();
+        mDBManager.contentId = contentId;
+        mDBManager.contentRotation = contentRota;
+        mDBManager.contentScale = contentScale;
+        marker_url = markerUrl;
+
+//        Log.e("c_id",contentId);
+//        Log.e("c_scale",contentScale+"");
+//        Log.e("c_url",markerUrl);
+//        Log.e("c_rotate",contentRota.toString());
+    }
+
+    public void getContentsModel(final CallBackListener callBackListener){
+        final String contentId = DBManager.getInstance().contentId;
+        RequestManager requestManager = RequestManager.getInstance();
+
+
+        requestManager.requestGetContentInfo(contentId, new RequestManager.ContentCallback() {
+            @Override
+            public void onResponse(ContentModel response) {
+                contentModel = response;
+                callBackListener.onSucces("contentsModel");
+            }
+        });
+    }
+
+
+    public void getTextures(final CallBackListener callBackListener){
+        try{
+            Log.d("markertest",contentModel.toString());
+
+            for(int i=0;i<contentModel.getTextures().size();i++){
+                Log.d("texture real name",contentModel.getTextures().get(i)+"");
+                String texture_url = contentModel.getTextures().get(i);
+                getTexture(contentModel.getContentName(),texture_url,i,contentModel.getTextures().size(),callBackListener);
+            }
+        }catch (NullPointerException e){
+            e.printStackTrace();
+        }
+    }
+
+    public void getTexture(final String name, final String url, final int request_count, final int last_count,final CallBackListener callBackListener){
+        try {
+            String suffix = url.substring(url.indexOf('.'), url.length());
+            Log.d("texture_request_suffix",suffix);
+            Log.d("texture_request_url",url);
+            RequestManager mRequestManager = RequestManager.getInstance();
+            mRequestManager.requesetDownloadFileFromStorage(name, url, suffix, new RequestManager.TransferCallback() {
+                @Override
+                public void onResponse(TransferModel response) {
+                    if (response.getSuffix().compareTo(".jpg") == 0 || response.getSuffix().compareTo(".png") == 0) {
+                        Bitmap downBitmap = BitmapFactory.decodeFile(response.getPath());
+                        //imgView.setImageBitmap(downBitmap);
+
+                        //String texture_file_name=response.getPath().substring(response.getPath().lastIndexOf("/")+1,response.getPath().length()-4);
+                        String texture_file_name = url.substring(url.lastIndexOf("/")+1,url.length()-4);
+                        Log.d("getTexture_name",texture_file_name);
+                        saveBitmaptoJpeg(downBitmap,name,texture_file_name);
+                    }
+                    Log.d(TAG, "onResponse: content download complete ");
+                    String texture_url = response.getPath();
+                    //Log.d("texture_path",texture_url);
+                    //textures.add(texture_url);
+                    //setup();
+
+                    //very important
+                    textureCount++;
+                    if(textureCount == last_count){
+                        callBackListener.onSucces("textures");
+                    }
+
+                }
+            });
+        }catch (StringIndexOutOfBoundsException e){e.printStackTrace();}
+    }
+
+    public void getMarker(final CallBackListener cameraActivity) {
+        final String url = marker_url;
+        String suffix = url.substring(url.indexOf('.'), url.length());
+        final String name = "markers";
+        RequestManager mRequestManager = RequestManager.getInstance();
+        mRequestManager.requesetDownloadFileFromStorage(name, url, suffix, new RequestManager.TransferCallback() {
+            @Override
+            public void onResponse(TransferModel response) {
+                if (response.getSuffix().compareTo(".jpg") == 0 || response.getSuffix().compareTo(".png") == 0) {
+                    Bitmap downBitmap = BitmapFactory.decodeFile(response.getPath());
+                    //imgView.setImageBitmap(downBitmap);
+
+                    //String texture_file_name=response.getPath().substring(response.getPath().lastIndexOf("/")+1,response.getPath().length()-4);
+                    String texture_file_name = url.substring(url.lastIndexOf("/")+1,url.length()-4);
+                    Log.d("getTexture_name",texture_file_name);
+
+                    // name to be folder name
+                    saveBitmaptoJpeg(downBitmap,name,texture_file_name);
+                    cameraActivity.onSucces("markerImg");
+                }
+            }
+        });
+    }
+
+
+    public void getJetFromStorage(final CallBackListener callBackListener){
+        String url = contentModel.getModel();
+        String suffix = url.substring(url.indexOf('.'), url.length());
+        RequestManager mRequestManager = RequestManager.getInstance();
+        mRequestManager.requesetDownloadFileFromStorage(contentModel.getContentName(), url, suffix, new RequestManager.TransferCallback() {
+            @Override
+            public void onResponse(TransferModel response) {
+                if (response.getSuffix().compareTo(".jet") == 0)
+                {
+                    //modelUrl = response.getPath();
+
+                    //String model_file_name = response.getPath().substring(response.getPath().lastIndexOf("/") + 1, response.getPath().length() - 4);
+//                    Log.d("model file name:",contentModel.getContentName());
+                    String model_file_name = contentModel.getContentName();
+                    Log.d("getModel_name", model_file_name);
+                    try {
+                        FileInputStream file_readed = new FileInputStream(new File(response.getPath()));
+                        saveTemptoJet(file_readed, contentModel.getContentName(), model_file_name);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                callBackListener.onSucces("jet");
+            }
+        });
+    }
+    public void saveTemptoJet(FileInputStream file_input,String folder, String name){
+        String ex_storage = Environment.getExternalStorageDirectory().getAbsolutePath(); // Get Absolute Path in External Sdcard
+        String foler_name = "/kudan/"+folder+"/";
+        String file_name = name+".jet";
+        String string_path = ex_storage+foler_name;
+        File file_path;
+        try{
+            file_path = new File(string_path);
+            if(!file_path.isDirectory()){
+                file_path.mkdirs();
+            }
+            FileOutputStream out = new FileOutputStream(string_path+file_name);
+            int data;
+            while ((data = file_input.read()) != -1) {
+                // TODO : use data
+                out.write(data);
+            }
+            file_input.close();
+            out.close();
+            file_input.close();
+//            textures.add(string_path+file_name);
+            modelUrl = string_path+file_name;
+            Log.d("model_path",string_path+file_name);
+
+        }catch(FileNotFoundException exception){
+            Log.e("FileNotFoundException", exception.getMessage());
+        }catch(IOException exception){
+            Log.e("IOException", exception.getMessage());
+        }
+    }
+    public void saveBitmaptoJpeg(Bitmap bitmap, String folder, String name){
+        String ex_storage =Environment.getExternalStorageDirectory().getAbsolutePath(); // Get Absolute Path in External Sdcard
+        String foler_name = "/kudan/"+folder+"/";
+        String file_name = name+".jpg";
+        String string_path = ex_storage+foler_name;
+        File file_path;
+        try{
+            file_path = new File(string_path);
+            if(!file_path.isDirectory()){
+                file_path.mkdirs();
+            }
+            FileOutputStream out = new FileOutputStream(string_path+file_name);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out); out.close();
+            textures.add(string_path+file_name);
+            //Log.d("textures_path",string_path+file_name);
+        }catch(FileNotFoundException exception){
+            Log.e("FileNotFoundException", exception.getMessage());
+        }catch(IOException exception){
+            Log.e("IOException", exception.getMessage());
+        }
+
+    }
+    public void setContentsModel() {
+        contentModel_putExtra = new ContentModel();
+        contentModel_putExtra.setTextures(textures);
+        contentModel_putExtra.setModel(modelUrl);
     }
 }

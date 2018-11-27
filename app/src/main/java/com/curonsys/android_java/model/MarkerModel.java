@@ -55,7 +55,7 @@ public class MarkerModel {
         }
 
         if (data.containsKey("rating")) {
-            mRating = (float) data.get("rating");
+            mRating = (float)Float.parseFloat(String.valueOf(data.get("rating")));
         } else {
             mRating = 0;
         }
@@ -97,7 +97,7 @@ public class MarkerModel {
         }
 
         if (data.containsKey("content_scale")) {
-            mContentScale = (float) data.get("content_scale");
+            mContentScale = Float.parseFloat(String.valueOf(data.get("content_scale")));
         } else {
             mContentScale = 0;
         }

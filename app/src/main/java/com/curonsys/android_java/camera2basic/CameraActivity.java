@@ -84,6 +84,42 @@ public class CameraActivity extends AppCompatActivity implements CallBackListene
             case "upload":
                 Log.d("upload","sucess");
                 Toast.makeText(getApplicationContext(),cameraFrag.getMarkerUrl(),Toast.LENGTH_LONG).show();
+                cameraFrag.showDialog("마커 정보를 가져오는 중입니다...",this);
+                cameraFrag.getMarkerModel((CallBackListener)this);
+                break;
+
+            case "getMarkerModel":
+//                Log.d("marker","sucess");
+                cameraFrag.materialDialog.dismiss();
+                cameraFrag.getMarker(this);
+                cameraFrag.showDialog("마커를 다운받는 중입니다...",this);
+                break;
+
+            case "markerImg":
+                cameraFrag.materialDialog.dismiss();
+                cameraFrag.getContentsModel(this);
+                cameraFrag.showDialog("컨텐츠 정보를 가져오는 중입니다...",this);
+                break;
+
+            case "contentsModel":
+                cameraFrag.materialDialog.dismiss();
+                Log.e("getContentsModel :","sucess");
+                cameraFrag.showDialog("모델 파일을 가져오는 중입니다...",this);
+                cameraFrag.getJetFromStorage(this);
+                break;
+            case "jet":
+                cameraFrag.materialDialog.dismiss();
+                Log.e("getJet :","sucess");
+                cameraFrag.showDialog("텍스쳐를 가져오는 중입니다...",this);
+                cameraFrag.getTextures(this);
+
+                break;
+            case "textures":
+                cameraFrag.materialDialog.dismiss();
+                Log.e("getTextures :","sucess");
+                Toast.makeText(getApplicationContext(),"컨텐츠를 정상적으로 가져왔습니다",Toast.LENGTH_SHORT).show();
+                cameraFrag.setContentsModel();
+                break;
         }
 
     }
