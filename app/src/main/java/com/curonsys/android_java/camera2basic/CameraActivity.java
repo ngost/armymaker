@@ -119,7 +119,9 @@ public class CameraActivity extends AppCompatActivity implements CallBackListene
                 Log.e("getTextures :","sucess");
                 Toast.makeText(getApplicationContext(),"컨텐츠를 정상적으로 가져왔습니다",Toast.LENGTH_SHORT).show();
                 cameraFrag.setContentsModel();
+                Toast.makeText(getApplicationContext(),"dd",Toast.LENGTH_LONG).show();
                 break;
+
         }
 
     }
