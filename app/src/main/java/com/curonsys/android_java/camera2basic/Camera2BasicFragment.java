@@ -85,11 +85,14 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -100,6 +103,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 import static android.content.ContentValues.TAG;
+import static android.widget.Toast.LENGTH_SHORT;
 
 public class Camera2BasicFragment extends Fragment
         implements View.OnClickListener, ActivityCompat.OnRequestPermissionsResultCallback {
@@ -416,7 +420,7 @@ public class Camera2BasicFragment extends Fragment
             activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(activity, text, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, text, LENGTH_SHORT).show();
                 }
             });
         }
@@ -1415,9 +1419,14 @@ public class Camera2BasicFragment extends Fragment
                     String model_file_name = contentModel.getContentName();
                     Log.d("getModel_name", model_file_name);
                     try {
-                        FileInputStream file_readed = new FileInputStream(new File(response.getPath()));
-                        saveTemptoJet(file_readed, contentModel.getContentName(), model_file_name);
+                        //FileInputStream file_readed = new FileInputStream(new File(response.getPath()));
+
+                        final FileInputStream in = new FileInputStream(response.getPath());
+
+                        saveTemptoJet(in, contentModel.getContentName(), model_file_name);
                     } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    } catch (IOException e){
                         e.printStackTrace();
                     }
                 }
@@ -1426,26 +1435,35 @@ public class Camera2BasicFragment extends Fragment
             }
         });
     }
-    public void saveTemptoJet(FileInputStream file_input,String folder, String name){
+    public void saveTemptoJet(InputStream in,String folder, String name){
         String ex_storage = Environment.getExternalStorageDirectory().getAbsolutePath(); // Get Absolute Path in External Sdcard
         String foler_name = "/kudan/"+folder+"/";
         String file_name = name+".jet";
         String string_path = ex_storage+foler_name;
-        File file_path;
+        File out_file_path=null;
+
+
         try{
-            file_path = new File(string_path);
-            if(!file_path.isDirectory()){
-                file_path.mkdirs();
+            out_file_path = new File(string_path);
+            if(!out_file_path.isDirectory()){
+                out_file_path.mkdirs();
             }
-            FileOutputStream out = new FileOutputStream(string_path+file_name);
-            int data;
-            while ((data = file_input.read()) != -1) {
-                // TODO : use data
-                out.write(data);
+
+            BufferedInputStream bis = new BufferedInputStream(in);
+            FileOutputStream fos = new FileOutputStream(string_path+file_name);
+            BufferedOutputStream bos = new BufferedOutputStream(fos);
+            int data = 0;
+
+            final byte[] buffer = new byte[1024];
+            while ((data = bis.read()) != -1){
+                bos.write(data);
             }
-            file_input.close();
-            out.close();
-            file_input.close();
+
+//            BufferedInputStream bIS = new BufferedInputStream(in);
+            bis.close();
+            in.close();
+            bos.close();
+            fos.close();
 //            textures.add(string_path+file_name);
             modelUrl = string_path+file_name;
             Log.d("model_path",string_path+file_name);
@@ -1468,7 +1486,8 @@ public class Camera2BasicFragment extends Fragment
                 file_path.mkdirs();
             }
             FileOutputStream out = new FileOutputStream(string_path+file_name);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out); out.close();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            out.close();
             if(isMarker){
                 DBManager.getInstance().imageURI = Uri.fromFile(new File(string_path+file_name));
             }else {

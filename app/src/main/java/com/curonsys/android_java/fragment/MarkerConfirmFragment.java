@@ -27,6 +27,8 @@ import com.curonsys.android_java.model.ContentModel;
 import com.curonsys.android_java.model.TransferModel;
 import com.curonsys.android_java.util.DBManager;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -203,7 +205,7 @@ public class MarkerConfirmFragment extends Fragment {
         }
     }
 
-    public void saveTemptoJet(FileInputStream file_input,String folder, String name){
+    public void saveTemptoJet(FileInputStream fis,String folder, String name){
         String ex_storage = Environment.getExternalStorageDirectory().getAbsolutePath(); // Get Absolute Path in External Sdcard
         String foler_name = "/kudan/"+folder+"/";
         String file_name = name+".jet";
@@ -214,16 +216,22 @@ public class MarkerConfirmFragment extends Fragment {
             if(!file_path.isDirectory()){
                 file_path.mkdirs();
             }
-            FileOutputStream out = new FileOutputStream(string_path+file_name);
-            int data;
-            while ((data = file_input.read()) != -1) {
-                // TODO : use data
-                out.write(data);
+
+            BufferedInputStream bis = new BufferedInputStream(fis);
+            FileOutputStream fos = new FileOutputStream(string_path+file_name);
+            BufferedOutputStream bos = new BufferedOutputStream(fos);
+            int data = 0;
+
+//            final byte[] buffer = new byte[1024];
+            while ((data = bis.read()) != -1){
+                bos.write(data);
             }
-            file_input.close();
-            out.close();
-            file_input.close();
-//            textures.add(string_path+file_name);
+
+//            BufferedInputStream bIS = new BufferedInputStream(in);
+            bis.close();
+            fis.close();
+            bos.close();
+            fos.close();
             modelUrl = string_path+file_name;
             Log.d("model_path",string_path+file_name);
 
