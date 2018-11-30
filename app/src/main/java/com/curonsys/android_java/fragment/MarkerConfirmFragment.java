@@ -128,14 +128,20 @@ public class MarkerConfirmFragment extends Fragment {
                         materialDialog.dismiss();
                         Log.e("getContentsModel :","sucess");
                         showDialog("모델 파일을 가져오는 중입니다...");
-                        getJetFromStorage();
+                        getModelFromStorage(dbManager.is3D);
 
                         break;
-                    case "jet":
+                    case "model":
                         materialDialog.dismiss();
-                        Log.e("getJet :","sucess");
                         showDialog("텍스쳐를 가져오는 중입니다...");
-                        getTextures();
+
+                        if(dbManager.is3D){
+                            Log.e("getJet :","sucess");
+                            getTextures();
+                        }else {
+                            Log.e("is3d","false");
+                            callBackListener.onSucces("textures");
+                        }
 
                         break;
                     case "textures":
@@ -157,9 +163,15 @@ public class MarkerConfirmFragment extends Fragment {
     }
 
     private void setContentsModel() {
-        contentModel_putExtra = new ContentModel();
-        contentModel_putExtra.setTextures(textures);
-        contentModel_putExtra.setModel(modelUrl);
+        if(dbManager.is3D){
+            contentModel_putExtra = new ContentModel();
+            contentModel_putExtra.setTextures(textures);
+            contentModel_putExtra.setModel(modelUrl);
+        }else {
+            contentModel_putExtra = new ContentModel();
+            contentModel_putExtra.setModel(modelUrl);
+        }
+
     }
 
     @Override
@@ -205,7 +217,7 @@ public class MarkerConfirmFragment extends Fragment {
         }
     }
 
-    public void saveTemptoJet(FileInputStream fis,String folder, String name){
+    public String saveTemptoJet(FileInputStream fis,String folder, String name){
         String ex_storage = Environment.getExternalStorageDirectory().getAbsolutePath(); // Get Absolute Path in External Sdcard
         String foler_name = "/kudan/"+folder+"/";
         String file_name = name+".jet";
@@ -232,7 +244,7 @@ public class MarkerConfirmFragment extends Fragment {
             fis.close();
             bos.close();
             fos.close();
-            modelUrl = string_path+file_name;
+
             Log.d("model_path",string_path+file_name);
 
         }catch(FileNotFoundException exception){
@@ -240,8 +252,10 @@ public class MarkerConfirmFragment extends Fragment {
         }catch(IOException exception){
             Log.e("IOException", exception.getMessage());
         }
+        return string_path+file_name;
     }
-    public void saveBitmaptoJpeg(Bitmap bitmap, String folder, String name){
+
+    public String saveBitmaptoJpeg(Bitmap bitmap, String folder, String name){
         String ex_storage =Environment.getExternalStorageDirectory().getAbsolutePath(); // Get Absolute Path in External Sdcard
         String foler_name = "/kudan/"+folder+"/";
         String file_name = name+".jpg";
@@ -254,16 +268,53 @@ public class MarkerConfirmFragment extends Fragment {
             }
             FileOutputStream out = new FileOutputStream(string_path+file_name);
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out); out.close();
-            textures.add(string_path+file_name);
+
             //Log.d("textures_path",string_path+file_name);
         }catch(FileNotFoundException exception){
             Log.e("FileNotFoundException", exception.getMessage());
         }catch(IOException exception){
             Log.e("IOException", exception.getMessage());
         }
-
+        return string_path+file_name;
     }
 
+
+
+    public String saveTemptoMp4(FileInputStream fis,String folder, String name){
+        String ex_storage = Environment.getExternalStorageDirectory().getAbsolutePath(); // Get Absolute Path in External Sdcard
+        String foler_name = "/kudan/"+folder+"/";
+        String file_name = name+".mp4";
+        String string_path = ex_storage+foler_name;
+        File file_path;
+        try{
+            file_path = new File(string_path);
+            if(!file_path.isDirectory()){
+                file_path.mkdirs();
+            }
+
+            BufferedInputStream bis = new BufferedInputStream(fis);
+            FileOutputStream fos = new FileOutputStream(string_path+file_name);
+            BufferedOutputStream bos = new BufferedOutputStream(fos);
+            int data = 0;
+
+            while ((data = bis.read()) != -1){
+                bos.write(data);
+            }
+
+            bis.close();
+            fis.close();
+            bos.close();
+            fos.close();
+
+            Log.d("model_path",string_path+file_name);
+
+        }catch(FileNotFoundException exception){
+            Log.e("FileNotFoundException", exception.getMessage());
+        }catch(IOException exception){
+            Log.e("IOException", exception.getMessage());
+        }
+        return string_path+file_name;
+    }
 
 
     public void getContentsModel(){
@@ -312,7 +363,7 @@ public class MarkerConfirmFragment extends Fragment {
                         //String texture_file_name=response.getPath().substring(response.getPath().lastIndexOf("/")+1,response.getPath().length()-4);
                         String texture_file_name = url.substring(url.lastIndexOf("/")+1,url.length()-4);
                         Log.d("getTexture_name",texture_file_name);
-                        saveBitmaptoJpeg(downBitmap,name,texture_file_name);
+                        textures.add(saveBitmaptoJpeg(downBitmap,name,texture_file_name));
                     }
                     Log.d(TAG, "onResponse: content download complete ");
                     String texture_url = response.getPath();
@@ -331,32 +382,63 @@ public class MarkerConfirmFragment extends Fragment {
         }catch (StringIndexOutOfBoundsException e){e.printStackTrace();}
     }
 
-    public void getJetFromStorage(){
-        String url = contentModel.getModel();
-        String suffix = url.substring(url.indexOf('.'), url.length());
-        RequestManager mRequestManager = RequestManager.getInstance();
-        mRequestManager.requesetDownloadFileFromStorage(contentModel.getContentName(), url, suffix, new RequestManager.TransferCallback() {
-            @Override
-            public void onResponse(TransferModel response) {
-                if (response.getSuffix().compareTo(".jet") == 0)
-                {
-                    //modelUrl = response.getPath();
+    public void getModelFromStorage(boolean is3D){
+        if(is3D == true){
 
-                    //String model_file_name = response.getPath().substring(response.getPath().lastIndexOf("/") + 1, response.getPath().length() - 4);
-//                    Log.d("model file name:",contentModel.getContentName());
-                    String model_file_name = contentModel.getContentName();
-                    Log.d("getModel_name", model_file_name);
-                    try {
-                        FileInputStream file_readed = new FileInputStream(new File(response.getPath()));
-                        saveTemptoJet(file_readed, contentModel.getContentName(), model_file_name);
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
+            String url = contentModel.getModel();
+            String suffix = url.substring(url.indexOf('.'), url.length());
+            RequestManager mRequestManager = RequestManager.getInstance();
+            mRequestManager.requesetDownloadFileFromStorage(contentModel.getContentName(), url, suffix, new RequestManager.TransferCallback() {
+                @Override
+                public void onResponse(TransferModel response) {
+                    if (response.getSuffix().compareTo(".jet") == 0)
+                    {
+                        String model_file_name = contentModel.getContentName();
+                        Log.d("getModel_name", model_file_name);
+                        try {
+                            FileInputStream file_readed = new FileInputStream(new File(response.getPath()));
+                            modelUrl = saveTemptoJet(file_readed, contentModel.getContentName(), model_file_name);
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    callBackListener.onSucces("model");
+                }
+            });
+        }else {
+            final String url = contentModel.getModel();
+            String suffix = url.substring(url.indexOf('.'), url.length());
+            RequestManager mRequestManager = RequestManager.getInstance();
+            mRequestManager.requesetDownloadFileFromStorage(contentModel.getContentName(), url, suffix, new RequestManager.TransferCallback() {
+                @Override
+                public void onResponse(TransferModel response) {
+                    if (response.getSuffix().compareTo(".jpg") == 0 || response.getSuffix().compareTo(".png") == 0) {
+                        Bitmap downBitmap = BitmapFactory.decodeFile(response.getPath());
+                        //imgView.setImageBitmap(downBitmap);
+
+                        //String texture_file_name=response.getPath().substring(response.getPath().lastIndexOf("/")+1,response.getPath().length()-4);
+                        String texture_file_name = url.substring(url.lastIndexOf("/")+1,url.length()-4);
+                        Log.d("getTexture_name",texture_file_name);
+
+                        // name to be folder name
+                        modelUrl = saveBitmaptoJpeg(downBitmap,contentModel.getContentName(),texture_file_name);
+                        callBackListener.onSucces("model");
+                    }else if(response.getSuffix().compareTo(".mp4") == 0){
+
+                            String model_file_name = contentModel.getContentName();
+                            Log.d("getModel_name", model_file_name);
+                            try {
+                                FileInputStream file_readed = new FileInputStream(new File(response.getPath()));
+                                modelUrl = saveTemptoMp4(file_readed, contentModel.getContentName(), model_file_name);
+                            } catch (FileNotFoundException e) {
+                                e.printStackTrace();
+                            }
+
+                        callBackListener.onSucces("model");
                     }
                 }
-
-                callBackListener.onSucces("jet");
-            }
-        });
+            });
+        }
     }
 
     public void showDialog(String msg){

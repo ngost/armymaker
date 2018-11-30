@@ -128,6 +128,7 @@ public class Camera2BasicFragment extends Fragment
     String modelUrl;
     public int textureCount =0;
     ContentModel contentModel_putExtra;
+    boolean hadMarker = false;
 
     static {
         ORIENTATIONS.append(Surface.ROTATION_0, 90);
@@ -1014,7 +1015,7 @@ public class Camera2BasicFragment extends Fragment
         if(!mDBManager.currentLocality.equals("") && !mDBManager.currentThoroughfare.equals("")){
             try{
                 Log.d("request","started");
-                requestManager.uploadImageToDjango(mFile, mDBManager.currentLocality,mDBManager.currentThoroughfare, new RequestManager.DjangoImageUploadCallback() {
+                requestManager.uploadImageToDjango(mFile,mDBManager.currentLatitude,mDBManager.currentLongtitude, mDBManager.currentLocality,mDBManager.currentThoroughfare, new RequestManager.DjangoImageUploadCallback() {
                     @Override
                     public void onCallback(JSONObject response) {
                         materialDialog.dismiss();
@@ -1037,6 +1038,7 @@ public class Camera2BasicFragment extends Fragment
             }catch (JSONException e) {
                 e.printStackTrace();
             }catch (NullPointerException e){
+                showToast("서버 연결에 실패하였습니다.");
                 e.printStackTrace();
             }
         }
@@ -1396,42 +1398,56 @@ public class Camera2BasicFragment extends Fragment
 
                     // name to be folder name
                     saveBitmaptoJpeg(downBitmap,name,texture_file_name,true);
-                    cameraActivity.onSucces("markerImg");
+                    if(hadMarker){
+                        cameraActivity.onSucces("textures");
+                    }else {
+                        cameraActivity.onSucces("markerImg");
+                    }
+
                 }
             }
         });
     }
 
 
-    public void getJetFromStorage(final CallBackListener callBackListener){
+    public void getModelFromStorage(final CallBackListener callBackListener){
         String url = contentModel.getModel();
         String suffix = url.substring(url.indexOf('.'), url.length());
         RequestManager mRequestManager = RequestManager.getInstance();
         mRequestManager.requesetDownloadFileFromStorage(contentModel.getContentName(), url, suffix, new RequestManager.TransferCallback() {
             @Override
             public void onResponse(TransferModel response) {
-                if (response.getSuffix().compareTo(".jet") == 0)
-                {
-                    //modelUrl = response.getPath();
+                try{
+                    if (response.getSuffix().compareTo(".jet") == 0)
+                    {
+                        //modelUrl = response.getPath();
 
-                    //String model_file_name = response.getPath().substring(response.getPath().lastIndexOf("/") + 1, response.getPath().length() - 4);
-//                    Log.d("model file name:",contentModel.getContentName());
-                    String model_file_name = contentModel.getContentName();
-                    Log.d("getModel_name", model_file_name);
-                    try {
-                        //FileInputStream file_readed = new FileInputStream(new File(response.getPath()));
-
+                        //String model_file_name = response.getPath().substring(response.getPath().lastIndexOf("/") + 1, response.getPath().length() - 4);
+    //                    Log.d("model file name:",contentModel.getContentName());
+                        String model_file_name = contentModel.getContentName();
+                        Log.d("getModel_name", model_file_name);
                         final FileInputStream in = new FileInputStream(response.getPath());
-
                         saveTemptoJet(in, contentModel.getContentName(), model_file_name);
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    } catch (IOException e){
-                        e.printStackTrace();
+                        callBackListener.onSucces("model");
+                    }else if(response.getSuffix().compareTo(".jpg") == 0 || response.getSuffix().compareTo(".png") == 0) {
+                        String model_file_name = contentModel.getContentName();
+                        Log.d("getModel_name", model_file_name);
+                            final FileInputStream in = new FileInputStream(response.getPath());
+                            saveModelFile(in, contentModel.getContentName(), model_file_name, response.getSuffix());
+                        callBackListener.onSucces("textures");
+                    }else if (response.getSuffix().compareTo(".mp4") == 0) {
+                        String model_file_name = contentModel.getContentName();
+                        Log.d("getModel_name", model_file_name);
+                        final FileInputStream in = new FileInputStream(response.getPath());
+                        saveModelFile(in, contentModel.getContentName(), model_file_name, response.getSuffix());
+                        callBackListener.onSucces("textures");
                     }
+                }catch(FileNotFoundException e){
+                    e.printStackTrace();
                 }
 
-                callBackListener.onSucces("jet");
+
+
             }
         });
     }
@@ -1442,29 +1458,110 @@ public class Camera2BasicFragment extends Fragment
         String string_path = ex_storage+foler_name;
         File out_file_path=null;
 
+        File check_files = new File(string_path+file_name);
+        if(check_files.exists()==true) {
+            modelUrl = string_path+file_name;
+        }else {
+            try{
+                out_file_path = new File(string_path);
+                if(!out_file_path.isDirectory()){
+                    out_file_path.mkdirs();
+                }
 
-        try{
-            out_file_path = new File(string_path);
-            if(!out_file_path.isDirectory()){
-                out_file_path.mkdirs();
+                BufferedInputStream bis = new BufferedInputStream(in);
+                FileOutputStream fos = new FileOutputStream(string_path+file_name);
+                BufferedOutputStream bos = new BufferedOutputStream(fos);
+                int data = 0;
+
+                final byte[] buffer = new byte[1024];
+                while ((data = bis.read()) != -1){
+                    bos.write(data);
+                }
+
+//            BufferedInputStream bIS = new BufferedInputStream(in);
+                bis.close();
+                in.close();
+                bos.close();
+                fos.close();
+//            textures.add(string_path+file_name);
+                modelUrl = string_path+file_name;
+                Log.d("model_path",string_path+file_name);
+
+            }catch(FileNotFoundException exception){
+                Log.e("FileNotFoundException", exception.getMessage());
+            }catch(IOException exception){
+                Log.e("IOException", exception.getMessage());
+            }
+        }
+    }
+
+    public void saveBitmaptoJpeg(Bitmap bitmap, String folder, String name, boolean isMarker){
+        String ex_storage =Environment.getExternalStorageDirectory().getAbsolutePath(); // Get Absolute Path in External Sdcard
+        String foler_name = "/kudan/"+folder+"/";
+        String file_name = name+".jpg";
+        String string_path = ex_storage+foler_name;
+        File file_path;
+        File files = new File(string_path+file_name);
+        //파일 유무를 확인합니다.
+        if(files.exists()==true) {
+        //파일이 있을시
+            if(isMarker){
+                DBManager.getInstance().imageURI = Uri.fromFile(new File(string_path+file_name));
+            }else {
+                textures.add(string_path + file_name);
             }
 
-            BufferedInputStream bis = new BufferedInputStream(in);
+        } else {
+        //파일이 없을시
+            try{
+                file_path = new File(string_path);
+                if(!file_path.isDirectory()){
+                    file_path.mkdirs();
+                }
+                FileOutputStream out = new FileOutputStream(string_path+file_name);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                out.close();
+                if(isMarker){
+                    DBManager.getInstance().imageURI = Uri.fromFile(new File(string_path+file_name));
+                }else {
+                    textures.add(string_path + file_name);
+                }
+                //Log.d("textures_path",string_path+file_name);
+            }catch(FileNotFoundException exception){
+                Log.e("FileNotFoundException", exception.getMessage());
+            }catch(IOException exception){
+                Log.e("IOException", exception.getMessage());
+            }
+        }
+
+
+    }
+
+    public void saveTemptoMp4(FileInputStream fis,String folder, String name){
+        String ex_storage = Environment.getExternalStorageDirectory().getAbsolutePath(); // Get Absolute Path in External Sdcard
+        String foler_name = "/kudan/"+folder+"/";
+        String file_name = name+".mp4";
+        String string_path = ex_storage+foler_name;
+        File file_path;
+        try{
+            file_path = new File(string_path);
+            if(!file_path.isDirectory()){
+                file_path.mkdirs();
+            }
+
+            BufferedInputStream bis = new BufferedInputStream(fis);
             FileOutputStream fos = new FileOutputStream(string_path+file_name);
             BufferedOutputStream bos = new BufferedOutputStream(fos);
             int data = 0;
 
-            final byte[] buffer = new byte[1024];
             while ((data = bis.read()) != -1){
                 bos.write(data);
             }
 
-//            BufferedInputStream bIS = new BufferedInputStream(in);
             bis.close();
-            in.close();
+            fis.close();
             bos.close();
             fos.close();
-//            textures.add(string_path+file_name);
             modelUrl = string_path+file_name;
             Log.d("model_path",string_path+file_name);
 
@@ -1474,33 +1571,51 @@ public class Camera2BasicFragment extends Fragment
             Log.e("IOException", exception.getMessage());
         }
     }
-    public void saveBitmaptoJpeg(Bitmap bitmap, String folder, String name, boolean isMarker){
-        String ex_storage =Environment.getExternalStorageDirectory().getAbsolutePath(); // Get Absolute Path in External Sdcard
+
+    public void saveModelFile(FileInputStream fis,String folder, String name,String extension){
+        String ex_storage = Environment.getExternalStorageDirectory().getAbsolutePath(); // Get Absolute Path in External Sdcard
         String foler_name = "/kudan/"+folder+"/";
-        String file_name = name+".jpg";
+        String file_name = name+"."+extension;
         String string_path = ex_storage+foler_name;
         File file_path;
-        try{
-            file_path = new File(string_path);
-            if(!file_path.isDirectory()){
-                file_path.mkdirs();
+
+
+        File checkFile = new File(string_path+file_name);
+
+        if(checkFile.exists()){
+            modelUrl = string_path+file_name;
+        }else {
+            try{
+                file_path = new File(string_path);
+                if(!file_path.isDirectory()){
+                    file_path.mkdirs();
+                }
+
+                BufferedInputStream bis = new BufferedInputStream(fis);
+                FileOutputStream fos = new FileOutputStream(string_path+file_name);
+                BufferedOutputStream bos = new BufferedOutputStream(fos);
+                int data = 0;
+
+                while ((data = bis.read()) != -1){
+                    bos.write(data);
+                }
+
+                bis.close();
+                fis.close();
+                bos.close();
+                fos.close();
+                modelUrl = string_path+file_name;
+                Log.d("model_path",string_path+file_name);
+
+            }catch(FileNotFoundException exception){
+                Log.e("FileNotFoundException", exception.getMessage());
+            }catch(IOException exception){
+                Log.e("IOException", exception.getMessage());
             }
-            FileOutputStream out = new FileOutputStream(string_path+file_name);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-            out.close();
-            if(isMarker){
-                DBManager.getInstance().imageURI = Uri.fromFile(new File(string_path+file_name));
-            }else {
-                textures.add(string_path + file_name);
-            }
-            //Log.d("textures_path",string_path+file_name);
-        }catch(FileNotFoundException exception){
-            Log.e("FileNotFoundException", exception.getMessage());
-        }catch(IOException exception){
-            Log.e("IOException", exception.getMessage());
         }
 
     }
+
     public void setContentsModel() {
         contentModel_putExtra = new ContentModel();
         contentModel_putExtra.setTextures(textures);

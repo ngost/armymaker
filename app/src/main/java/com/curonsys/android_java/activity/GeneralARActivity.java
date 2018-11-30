@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import eu.kudan.kudan.ARActivity;
+import eu.kudan.kudan.ARImageNode;
 import eu.kudan.kudan.ARImageTrackable;
 import eu.kudan.kudan.ARImageTrackableListener;
 import eu.kudan.kudan.ARImageTracker;
@@ -26,7 +27,11 @@ import eu.kudan.kudan.ARLightMaterial;
 import eu.kudan.kudan.ARMeshNode;
 import eu.kudan.kudan.ARModelImporter;
 import eu.kudan.kudan.ARModelNode;
+import eu.kudan.kudan.ARNode;
 import eu.kudan.kudan.ARTexture2D;
+import eu.kudan.kudan.ARTextureMaterial;
+import eu.kudan.kudan.ARVideoNode;
+import eu.kudan.kudan.ARVideoTexture;
 
 
 public class GeneralARActivity extends ARActivity {
@@ -35,6 +40,8 @@ public class GeneralARActivity extends ARActivity {
     DBManager mDBManager;
     Vibrator vibrator;
     ARModelNode node3d;
+    ARImageNode imageNode;
+    ARVideoNode videoNode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +64,7 @@ public class GeneralARActivity extends ARActivity {
         Log.d("ar_activity","setup");
 
         Log.d("setup","called");
+
 
         String path = mDBManager.imageURI.toString();
         //step1, 추적 가능한 이미지를 등록해라. 여기서 해야 할 일은 Trackable 객체 만들기, Tracker 생성
@@ -84,8 +92,103 @@ public class GeneralARActivity extends ARActivity {
 
         //트래커 객체생성
 
+        String extension = contentModel.getModel().substring(contentModel.getModel().lastIndexOf("."));
+        switch (extension){
+            case ".jet":
+                add3dNode(imageTrackable);
+                break;
+            case ".jpg":
+                addImageNode(imageTrackable);
+                break;
+            case ".png":
+                addImageNode(imageTrackable);
+                break;
+            case ".mp4":
+                addVideoNode(imageTrackable);
+                break;
+        }
 
 
+
+
+
+
+    }
+
+    private void addVideoNode(ARImageTrackable imageTrackable) {
+        final ARVideoTexture videoTexture = new ARVideoTexture();
+        videoTexture.loadFromPath(contentModel.getModel());
+
+        // Initialise video node with video texture
+        videoNode = new ARVideoNode(videoTexture);
+
+        //Add video node to image trackable
+        imageTrackable.getWorld().addChild(videoNode);
+
+        // Video scale
+        float scale = imageTrackable.getWidth() / videoTexture.getWidth();
+        initRoateAndScale(videoNode);
+
+        imageTrackable.getWorld().addChild(videoNode);
+        imageTrackable.addListener(new ARImageTrackableListener() {
+            @Override
+            public void didDetect (ARImageTrackable arImageTrackable){
+                if(true){
+                    vibrator.vibrate(500);
+                    videoTexture.start();
+                }
+            }
+
+            @Override
+            public void didTrack (ARImageTrackable arImageTrackable){
+
+            }
+
+            @Override
+            public void didLose (ARImageTrackable arImageTrackable){
+                if(true){
+                }
+            }
+        });
+
+    }
+
+    private void addImageNode(ARImageTrackable imageTrackable) {
+        imageNode = new ARImageNode().initWithPath(contentModel.getModel());
+
+
+        // Add image node to image trackable
+        imageTrackable.getWorld().addChild(imageNode);
+
+        // Image scale
+        ARTextureMaterial textureMaterial = (ARTextureMaterial)imageNode.getMaterial();
+        float scale = imageTrackable.getWidth() / textureMaterial.getTexture().getWidth();
+
+        // Hide image node
+        initRoateAndScale(imageNode);
+        imageTrackable.getWorld().addChild(imageNode);
+        imageTrackable.addListener(new ARImageTrackableListener() {
+            @Override
+            public void didDetect (ARImageTrackable arImageTrackable){
+                if(true){
+                    vibrator.vibrate(500);
+                }
+            }
+
+            @Override
+            public void didTrack (ARImageTrackable arImageTrackable){
+
+            }
+
+            @Override
+            public void didLose (ARImageTrackable arImageTrackable){
+                if(true){
+                }
+            }
+        });
+    }
+
+    private void add3dNode(ARImageTrackable imageTrackable) {
         ARModelImporter arModelImporter = new ARModelImporter();
         arModelImporter.loadFromPath(contentModel.getModel());
         //model's file name
@@ -159,7 +262,7 @@ public class GeneralARActivity extends ARActivity {
 
             }
         }
-        initRoateAndScale();
+        initRoateAndScale(node3d);
 
         imageTrackable.getWorld().addChild(node3d);
         imageTrackable.addListener(new ARImageTrackableListener() {
@@ -185,30 +288,30 @@ public class GeneralARActivity extends ARActivity {
         });
     }
 
-    public void initRoateAndScale(){
-        node3d.scaleByUniform(mDBManager.contentScale);
-        setRotate(String.valueOf(mDBManager.contentRotation.get(0)),"x");
-        setRotate(String.valueOf(mDBManager.contentRotation.get(1)),"y");
-        setRotate(String.valueOf(mDBManager.contentRotation.get(2)),"z");
+    public void initRoateAndScale(ARNode node){
+        node.scaleByUniform(mDBManager.contentScale);
+        setRotate(node,String.valueOf(mDBManager.contentRotation.get(0)),"x");
+        setRotate(node,String.valueOf(mDBManager.contentRotation.get(1)),"y");
+        setRotate(node,String.valueOf(mDBManager.contentRotation.get(2)),"z");
     }
 
-    public void setRotate(String num, String axis){
+    public void setRotate(ARNode node, String num, String axis){
         int angle = 45;
         int count = (int)Float.parseFloat(num);
         switch (axis){
             case "x":
                 for(int i=1; i<count; i++){
-                    node3d.rotateByDegrees(angle,1, 0, 0);
+                    node.rotateByDegrees(angle,1, 0, 0);
                 }
                 break;
             case "y":
                 for(int i=1; i<count; i++){
-                    node3d.rotateByDegrees(angle,0, 1, 0);
+                    node.rotateByDegrees(angle,0, 1, 0);
                 }
                 break;
             case "z":
                 for(int i=1; i<count; i++){
-                    node3d.rotateByDegrees(angle,0, 0, 1);
+                    node.rotateByDegrees(angle,0, 0, 1);
                 }
                 break;
         }

@@ -152,6 +152,7 @@ public class ContentsChoiceFragment extends Fragment {
                 ContentModel selected = contentsModel.get(position);
                 dbManager.contentId = selected.getContentId();
                 dbManager.contentName = selected.getContentName();
+                dbManager.is3D = selected.get3D();
                 Log.d("clicked",selected.getContentId());
                 Log.d("clicked",selected.getContentName());
                 new MaterialDialog.Builder(thisContext)

@@ -221,6 +221,18 @@ public class LocationChoiceFragment extends Fragment implements OnMapReadyCallba
                 dbManager.currentLatitude = latitude;
             }catch (NullPointerException e){
                 e.printStackTrace();
+                try {
+                    lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, // 등록할 위치제공자
+                            100, // 통지사이의 최소 시간간격 (miliSecond)
+                            1, // 통지사이의 최소 변경거리 (m)
+                            mLocationListener);
+                    lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, // 등록할 위치제공자
+                            100, // 통지사이의 최소 시간간격 (miliSecond)
+                            1, // 통지사이의 최소 변경거리 (m)
+                            mLocationListener);
+                }catch (SecurityException ee) {
+                    ee.printStackTrace();
+                }
             }
         }
 

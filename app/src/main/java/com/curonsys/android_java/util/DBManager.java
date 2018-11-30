@@ -41,7 +41,9 @@ public class DBManager {
     public int textureCount = 0;
     public String[] contentTextureNames;
     public String[] contentTextureFiles;
-    public Boolean contentHasAnimation = false;
+
+    //수정!
+    public Boolean is3D = true;
 
     //frag4
     public float contentScale = 0;

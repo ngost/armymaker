@@ -107,9 +107,9 @@ public class CameraActivity extends AppCompatActivity implements CallBackListene
                 cameraFrag.materialDialog.dismiss();
                 Log.e("getContentsModel :","sucess");
                 cameraFrag.showDialog("모델 파일을 가져오는 중입니다...",this);
-                cameraFrag.getJetFromStorage(this);
+                cameraFrag.getModelFromStorage(this);
                 break;
-            case "jet":
+            case "model":
                 cameraFrag.materialDialog.dismiss();
                 Log.e("getJet :","sucess");
                 cameraFrag.showDialog("텍스쳐를 가져오는 중입니다...",this);

@@ -24,8 +24,13 @@ import com.curonsys.android_java.ImageProcessingManager;
 import com.curonsys.android_java.activity.MarkerGenerationActivity;
 import com.curonsys.android_java.PictureManager;
 import com.curonsys.android_java.R;
+import com.curonsys.android_java.http.RequestManager;
 import com.curonsys.android_java.util.DBManager;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
@@ -42,6 +47,8 @@ public class ImageChoiceFragment extends Fragment{
     private static final int REQUEST_TAKE_ALBUM = 3;
     private static final int REQUEST_IMAGE_CROP = 4;
     private CallBackListener callBackListener;
+    MaterialDialog.Builder builder = null;
+    MaterialDialog materialDialog = null;
 
     PictureManager pictureManager;
     ImageView showingImg; // 원래는 Previewimg 이름
@@ -98,7 +105,7 @@ public class ImageChoiceFragment extends Fragment{
     }
 
     @Override
-    public void onActivityResult(int requestCode,int resultCode,Intent data){
+    public void onActivityResult(int requestCode, int resultCode, final Intent data){
         switch(requestCode){
             case REQUEST_TAKE_PHOTO:
                 if(resultCode== Activity.RESULT_OK){
@@ -148,14 +155,49 @@ public class ImageChoiceFragment extends Fragment{
                     dbManager.imageURI = albumURI;
                     dbManager.generatorId = "admin";
                     try{
+
+
+                        builder = new MaterialDialog.Builder(thisContext)
+                                .title("유효성 검사중")
+                                .content("시간이 조금 걸릴 수 있습니다...")
+                                .progress(true,0);
+
+                        materialDialog = builder.build();
+                        materialDialog.show();
+
                         inputImage=MediaStore.Images.Media.getBitmap(thisContext.getContentResolver(),albumURI);
-                        imagProcessingTask = new ImageProcessingAsyncTask();
-                        imagProcessingTask.execute();
+                        RequestManager requestManager = RequestManager.getInstance();
+                        requestManager.markerEvaluationToDjango(new File(albumURI.getPath()), new RequestManager.DjangoImageUploadCallback() {
+                                    @Override
+                                    public void onCallback(JSONObject result) {
+                                        materialDialog.dismiss();
+                                        try{
+                                            Double rating = Double.parseDouble(result.getString("rating"));
+                                            dbManager.markerRating = rating;
+                                            Toast.makeText(thisContext,"유효성 검사가 완료되었습니다."+String.valueOf(rating),Toast.LENGTH_SHORT).show();
+                                            ratingBar.setVisibility(View.VISIBLE);
+                                            ratingBar.setRating(rating.floatValue());
+
+                                            Button nextStepBtn = mActivity.findViewById(R.id.nextstepBtn);
+                                            nextStepBtn.setClickable(true);
+                                            nextStepBtn.setEnabled(true);
+                                            callBackListener.onDoneBack();
+                                        }catch (JSONException e){
+                                            e.printStackTrace();
+                                        }
+
+                                    }
+                                });
+
+//                        imagProcessingTask = new ImageProcessingAsyncTask();
+//                        imagProcessingTask.execute();
                     }catch(FileNotFoundException e){
                         // TODO Auto-generated catch block
                         e.printStackTrace();
                     }catch(IOException e){
                         // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }catch (JSONException e){
                         e.printStackTrace();
                     }
                     break;

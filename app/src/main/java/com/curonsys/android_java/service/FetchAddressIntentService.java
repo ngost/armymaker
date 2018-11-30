@@ -70,7 +70,7 @@ public class FetchAddressIntentService extends IntentService {
         }
 
         //ADD CODE !
-        if (addresses == null){
+        if (addresses == null|| addresses.size()  == 0){
             try{
                 addresses = geocoder.getFromLocation(DBManager.getInstance().currentLatitude,DBManager.getInstance().currentLongtitude,1);
                 Log.d("force_latit",DBManager.getInstance().currentLatitude+"");
@@ -82,7 +82,8 @@ public class FetchAddressIntentService extends IntentService {
 
         // Handle case where no address was found.
         if (addresses == null || addresses.size()  == 0) {
-
+            Log.d("adresses",addresses.toString());
+            Log.e("address_size",addresses.size()+"");
 
             if (errorMessage.isEmpty()) {
                 errorMessage = getString(R.string.no_address_found);

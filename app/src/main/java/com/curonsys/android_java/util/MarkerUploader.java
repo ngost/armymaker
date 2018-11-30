@@ -66,7 +66,7 @@ public class MarkerUploader {
     private FirebaseAnalytics mAnalytics;
 
     private AddressResultReceiver mResultReceiver = new AddressResultReceiver(new Handler());
-    private MarkerAddressReceiver mAddressReceiver = new MarkerAddressReceiver(new Handler());
+    private MarkerAddressReceiver mAddressReceiver;
     private boolean mLocationUpdateState = true;
     protected Location mLastLocation = null;
 
@@ -80,6 +80,7 @@ public class MarkerUploader {
 
     public MarkerUploader(Activity activity){
         this.mContext = activity;
+        mAddressReceiver = new MarkerAddressReceiver(new Handler());
 
         this.mRequestManager = RequestManager.getInstance();
         this.mDBManager = DBManager.getInstance();
