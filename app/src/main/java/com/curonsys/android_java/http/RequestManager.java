@@ -20,6 +20,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -540,7 +541,7 @@ public class RequestManager {
     }
 
 
-    public void uploadImageToDjango(File img_file,double latitude, double longitude, String locality, String thoroughfare, final DjangoImageUploadCallback callback) throws JSONException {
+    public void uploadImageToDjango(File img_file,double latitude, double longitude, final DjangoImageUploadCallback callback) throws JSONException {
 
 //        File photo = new File(img_path.substring(7));
         DjangoClient.setTimeOut();
@@ -553,11 +554,11 @@ public class RequestManager {
 
         params.put("latitude",latitude);
         params.put("longitude",longitude);
-        params.put("locality",locality);
-        params.put("thoroughfare",thoroughfare);
+//        params.put("locality",locality);
+//        params.put("thoroughfare",thoroughfare);
 
-        Log.d("locality",locality);
-        Log.d("thoroughfare",thoroughfare);
+//        Log.d("locality",locality);
+//        Log.d("thoroughfare",thoroughfare);
 
         DjangoClient.post("test",params, new JsonHttpResponseHandler(){
             @Override
@@ -573,8 +574,16 @@ public class RequestManager {
                     Log.d("errorResponse","is null");
                     callback.onCallback(null);
                 }
-                else
+                else{
                     callback.onCallback(errorResponse);
+                }
+
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                super.onFailure(statusCode, headers, responseString, throwable);
+                callback.onCallback(null);
             }
         });
     }

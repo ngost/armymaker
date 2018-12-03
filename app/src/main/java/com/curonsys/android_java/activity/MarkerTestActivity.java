@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.Vibrator;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -76,13 +77,21 @@ public class MarkerTestActivity extends ARActivity {
     protected void onCreate(final Bundle savedInstanceState) {
 
         //getContentsFiles();
-
         super.onCreate(savedInstanceState);
+        getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
+        try{
+            getActionBar().hide();
+        }catch (NullPointerException e){
+            e.printStackTrace();
+        }
+
         contentModel = (ContentModel) getIntent().getSerializableExtra("info");
         Log.e("model_path",contentModel.getModel());
         Log.e("texture_path",contentModel.getTextures().toString());
         setContentView(R.layout.activity_marker_test);
         vibrator = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
+
+
 
         //for 3d contents
         showLayout();

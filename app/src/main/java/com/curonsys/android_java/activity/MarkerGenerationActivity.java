@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -54,7 +55,17 @@ public class MarkerGenerationActivity extends AppCompatActivity implements CallB
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        try{
+            getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
+            getSupportActionBar().hide();
+        }catch (NullPointerException e){
+            e.printStackTrace();
+        }
         setContentView(R.layout.activity_marker_generation);
+
+
+
+
         mActivity = this;
 
         nextBtn = findViewById(R.id.nextstepBtn);

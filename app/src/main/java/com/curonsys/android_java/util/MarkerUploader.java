@@ -84,17 +84,22 @@ public class MarkerUploader {
 
         this.mRequestManager = RequestManager.getInstance();
         this.mDBManager = DBManager.getInstance();
-        mLocationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
-        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(mContext);
-        mGeofencingClient = LocationServices.getGeofencingClient(mContext);
-        mAuth = FirebaseAuth.getInstance();
-        mStorage = FirebaseStorage.getInstance(STORAGE_BASE_URL);
-        mAnalytics = FirebaseAnalytics.getInstance(mContext);
+        try{
+            mLocationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
+            mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(mContext);
+            mGeofencingClient = LocationServices.getGeofencingClient(mContext);
+            mAuth = FirebaseAuth.getInstance();
+            mStorage = FirebaseStorage.getInstance(STORAGE_BASE_URL);
+            mAnalytics = FirebaseAnalytics.getInstance(mContext);
 
-        getLastLocation();
-        myDataset = new ArrayList<String>();
-        String str = "Location Tracking..";
-        myDataset.add(str);
+            getLastLocation();
+            myDataset = new ArrayList<String>();
+            String str = "Location Tracking..";
+            myDataset.add(str);
+        }catch (NullPointerException e){
+            e.printStackTrace();
+            Log.d("null","markerUploader function");
+        }
     }
     public void start(boolean for_upload_state){
         this.for_upload = for_upload_state;

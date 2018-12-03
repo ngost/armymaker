@@ -40,9 +40,11 @@
             </intent-filter>
         </activity>
         <activity
+
             android:name="com.curonsys.android_java.activity.MarkerGenerationActivity"
             android:screenOrientation="portrait"/>
         <activity
+
             android:name="com.curonsys.android_java.activity.GeneralARActivity"
             android:screenOrientation="portrait"/>
 
@@ -60,7 +62,9 @@
             android:name="com.curonsys.android_java.activity.MarkerTestActivity"
             android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".camera2basic.CameraActivity"/>
+        <activity
+            android:screenOrientation="portrait"
+            android:name=".camera2basic.CameraActivity"/>
 
 
         <service

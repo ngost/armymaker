@@ -52,6 +52,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
@@ -65,9 +66,12 @@ import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.airbnb.lottie.LottieAnimationView;
+import com.airbnb.lottie.utils.LottieValueAnimator;
 import com.curonsys.android_java.CallBackListener;
 import com.curonsys.android_java.R;
 import com.curonsys.android_java.http.RequestManager;
@@ -129,6 +133,7 @@ public class Camera2BasicFragment extends Fragment
     public int textureCount =0;
     ContentModel contentModel_putExtra;
     boolean hadMarker = false;
+    LottieAnimationView lottie;
 
     static {
         ORIENTATIONS.append(Surface.ROTATION_0, 90);
@@ -170,12 +175,13 @@ public class Camera2BasicFragment extends Fragment
     /**
      * Max preview width that is guaranteed by Camera2 API
      */
-    private static final int MAX_PREVIEW_WIDTH = 1920;
-
+    private static final int MAX_PREVIEW_WIDTH = 2560;
+    //1920
     /**
      * Max preview height that is guaranteed by Camera2 API
      */
-    private static final int MAX_PREVIEW_HEIGHT = 1080;
+    private static final int MAX_PREVIEW_HEIGHT = 1440;
+    //1080
     private Context materialView;
 
     /**
@@ -191,6 +197,8 @@ public class Camera2BasicFragment extends Fragment
         //step 4
 
     }
+
+
 
     private final TextureView.SurfaceTextureListener mSurfaceTextureListener
             = new TextureView.SurfaceTextureListener() {
@@ -244,6 +252,18 @@ public class Camera2BasicFragment extends Fragment
     /**
      * {@link CameraDevice.StateCallback} is called when {@link CameraDevice} changes its state.
      */
+
+    final Handler handler = new Handler()
+    {
+        public void handleMessage(Message msg)
+        {
+            //UI 변경 작업을 코딩하세요.
+            lottie.cancelAnimation();
+            lottie.setVisibility(View.GONE);
+        }
+    };
+
+
     private final CameraDevice.StateCallback mStateCallback = new CameraDevice.StateCallback() {
 
         @Override
@@ -489,19 +509,24 @@ public class Camera2BasicFragment extends Fragment
 
         initLoaction(getActivity());
 
+        View view = inflater.inflate(R.layout.fragment_camera2_basic, container, false);
 
-        return inflater.inflate(R.layout.fragment_camera2_basic, container, false);
+
+
+
+        return view;
     }
 
     @Override
     public void onViewCreated(final View view, Bundle savedInstanceState) {
         view.findViewById(R.id.picture).setOnClickListener(this);
-        view.findViewById(R.id.info).setOnClickListener(this);
         mTextureView = (AutoFitTextureView) view.findViewById(R.id.texture);
         materialView = view.getContext();
 
 
         callBackListener = (CallBackListener) getActivity();
+        lottie = view.findViewById(R.id.lottie_scan_view);
+
 
     }
 
@@ -974,7 +999,10 @@ public class Camera2BasicFragment extends Fragment
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.picture: {
-                    takePicture();
+                takePicture();
+                lottie.setVisibility(View.VISIBLE);
+                lottie.loop(true);
+                lottie.playAnimation();
                 break;
             }
             case R.id.info: {
@@ -992,7 +1020,9 @@ public class Camera2BasicFragment extends Fragment
 
     public void uploadData(Activity activity) {
 
-        showDialog("마커 업로드중...",activity);
+//        showDialog("마커 스캔중...",activity);
+
+
         RequestManager requestManager = new RequestManager();
         final DBManager mDBManager = DBManager.getInstance();
 
@@ -1009,18 +1039,31 @@ public class Camera2BasicFragment extends Fragment
 //
 //        }
 
-        Log.d("local",mDBManager.currentLocality.toString()+"noting");
-        Log.d("thorogh",mDBManager.currentThoroughfare.toString());
+        //og.d("local",mDBManager.currentLocality.toString()+"noting");
+        //Log.d("thorogh",mDBManager.currentThoroughfare.toString());
 
-        if(!mDBManager.currentLocality.equals("") && !mDBManager.currentThoroughfare.equals("")){
+//        if(!mDBManager.currentLocality.equals("") && !mDBManager.currentThoroughfare.equals("")){
             try{
                 Log.d("request","started");
-                requestManager.uploadImageToDjango(mFile,mDBManager.currentLatitude,mDBManager.currentLongtitude, mDBManager.currentLocality,mDBManager.currentThoroughfare, new RequestManager.DjangoImageUploadCallback() {
+                requestManager.uploadImageToDjango(mFile,mDBManager.currentLatitude,mDBManager.currentLongtitude, new RequestManager.DjangoImageUploadCallback() {
                     @Override
                     public void onCallback(JSONObject response) {
-                        materialDialog.dismiss();
-                        Log.d("Image upload Result:",response.toString());
+
+//                        materialDialog.dismiss();
+//                        lottie.cancelAnimation();
+//                        lottie.setVisibility(View.GONE);
+
+                        new Thread()
+                        {
+                            public void run()
+                            {
+                                Message message = handler.obtainMessage();
+                                handler.sendMessage(message);
+                            }
+                        }.start();
+
                         try{
+                            Log.d("Image upload Result:",response.toString());
                             marker_url = response.getString("marker_url");
                             marker_id = response.getString("contents_id");
                             if(marker_url.equals("null") || marker_id.equals("null")){
@@ -1032,6 +1075,8 @@ public class Camera2BasicFragment extends Fragment
                             }
                         }catch (JSONException e){
                             e.printStackTrace();
+                        }catch (NullPointerException e){
+                            showToast("마커를 찾지 못하였습니다...");
                         }
                     }
                 });
@@ -1042,7 +1087,11 @@ public class Camera2BasicFragment extends Fragment
                 e.printStackTrace();
             }
         }
-    }
+//        else{
+//            materialDialog.dismiss();
+//            showToast("위치를 가져오지 못하였습니다...");
+//        }
+  //  }
     public String getMarkerUrl(){
         return this.marker_url;
     }
@@ -1090,16 +1139,19 @@ public class Camera2BasicFragment extends Fragment
                 lm.removeUpdates(mLocationListener);  //  미수신할때는 반드시 자원해체를 해주어야 한다.
                 mDBManager.currentLongtitude = longitude;
                 mDBManager.currentLatitude = latitude;
+                Log.d("latitude",mDBManager.currentLatitude+"");
+                Log.d("longitude",mDBManager.currentLongtitude+"");
+
 
                 //materialDialog.dismiss();
-
+                MarkerUploader uploader = new MarkerUploader(getActivity());
+                uploader.start(false);
 
             }catch (NullPointerException e){
                 e.printStackTrace();
             }
 
-            MarkerUploader uploader = new MarkerUploader(getActivity());
-            uploader.start(false);
+
         }
 
         public void onProviderDisabled(String provider) {
@@ -1289,12 +1341,14 @@ public class Camera2BasicFragment extends Fragment
     }
 
     public void getMarkerModel(final CallBackListener callBackListener){
+        Log.e("marker get","try");
         RequestManager requestManager = RequestManager.getInstance();
         requestManager.requestGetMarkerInfo(marker_id, new RequestManager.MarkerCallback() {
             @Override
             public void onResponse(MarkerModel response) {
                 setContentsInfo(response);
                 callBackListener.onSucces("getMarkerModel");
+                Log.e("marker get","sucess");
             }
         });
     }

@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Vibrator;
 import android.util.Log;
+import android.view.Window;
 import android.widget.Toast;
 
 import com.curonsys.android_java.R;
@@ -46,6 +47,14 @@ public class GeneralARActivity extends ARActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        try{
+            getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
+            getActionBar().hide();
+        }catch (NullPointerException e){
+            e.printStackTrace();
+        }
+
         setContentView(R.layout.activity_general_ar);
         Log.d("ar_activity","oncreate");
         contentModel = (ContentModel) getIntent().getSerializableExtra("contents_model");
@@ -56,6 +65,9 @@ public class GeneralARActivity extends ARActivity {
 //        Log.d("3", mDBManager.imageURI.toString());
 //        Log.d("4",mDBManager.contentRotation.toString());
 //        Log.d("5",mDBManager.contentScale+"");
+
+
+
     }
 
     @Override

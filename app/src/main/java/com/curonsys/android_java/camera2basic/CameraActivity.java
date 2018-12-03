@@ -21,21 +21,31 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.curonsys.android_java.CallBackListener;
 import com.curonsys.android_java.R;
 import com.curonsys.android_java.activity.GeneralARActivity;
 
 public class CameraActivity extends AppCompatActivity implements CallBackListener {
     Camera2BasicFragment cameraFrag;
-
+    LottieAnimationView lottie;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        try{
+            getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
+            getSupportActionBar().hide();
+        }catch (NullPointerException e){
+            e.printStackTrace();
+        }
         setContentView(R.layout.activity_camera);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
 
         if (null == savedInstanceState) {
             cameraFrag = Camera2BasicFragment.newInstance();
@@ -67,6 +77,10 @@ public class CameraActivity extends AppCompatActivity implements CallBackListene
 //
 //            }
 //        };
+
+
+
+
     }
 
     @Override
@@ -81,6 +95,7 @@ public class CameraActivity extends AppCompatActivity implements CallBackListene
             case "capture":
                 Log.d("capture","sucess");
 //                cameraFrag.initLoaction(this);
+
                 cameraFrag.uploadData(this);
                 break;
             case "upload":
