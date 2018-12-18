@@ -20,7 +20,6 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.curonsys.android_java.CallBackListener;
-import com.curonsys.android_java.ImageProcessingManager;
 import com.curonsys.android_java.activity.MarkerGenerationActivity;
 import com.curonsys.android_java.PictureManager;
 import com.curonsys.android_java.R;
@@ -58,7 +57,6 @@ public class ImageChoiceFragment extends Fragment{
 
     private Bitmap inputImage; // sift 연산시 사용할 이미지
 
-    ImageProcessingAsyncTask imagProcessingTask;
     DBManager dbManager = DBManager.getInstance();
 
 
@@ -217,42 +215,4 @@ public class ImageChoiceFragment extends Fragment{
         }
     }
 
-    public class ImageProcessingAsyncTask extends AsyncTask<Double, Void, Double> {
-        MaterialDialog.Builder builder = null;
-        MaterialDialog materialDialog = null;
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            builder = new MaterialDialog.Builder(thisContext)
-                    .title("유효성 검사중")
-                    .content("시간이 조금 걸릴 수 있습니다...")
-                    .progress(true,0);
-            materialDialog = builder.build();
-            materialDialog.show();
-        }
-
-        @Override
-        protected void onPostExecute(Double value) {
-            super.onPostExecute(value);
-            materialDialog.dismiss();
-            dbManager.markerRating = value;
-            Toast.makeText(thisContext,"유효성 검사가 완료되었습니다."+String.valueOf(value),Toast.LENGTH_SHORT).show();
-            ratingBar.setVisibility(View.VISIBLE);
-            ratingBar.setRating(value.floatValue());
-
-            Button nextStepBtn = mActivity.findViewById(R.id.nextstepBtn);
-            nextStepBtn.setClickable(true);
-            nextStepBtn.setEnabled(true);
-            Log.d("asyctask result",value+"");
-            callBackListener.onDoneBack();
-        }
-
-        @Override
-        protected Double doInBackground(Double... params) {
-            ImageProcessingManager imgManager = new ImageProcessingManager();
-            double result = imgManager.sift(inputImage);
-            return result;
-        }
-    }
 }
