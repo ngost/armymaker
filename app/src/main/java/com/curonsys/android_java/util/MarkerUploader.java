@@ -16,7 +16,9 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.curonsys.android_java.activity.MarkerGenerationActivity;
 import com.curonsys.android_java.http.RequestManager;
+import com.curonsys.android_java.model.BusinessCardModel;
 import com.curonsys.android_java.model.MarkerModel;
 import com.curonsys.android_java.model.TransferModel;
 import com.curonsys.android_java.service.FetchAddressIntentService;
@@ -105,8 +107,77 @@ public class MarkerUploader {
         this.for_upload = for_upload_state;
         startMarkerAddressIntentService();
         startFetchAddressIntentService();
+    }
+
+    public void startCardUpload(){
+        showDialog("잠시만 기다려주세요.\n마커를 등록중입니다...");
+        uploadMarkerCard();
+    }
 
 
+    private void uploadMarkerCard(){
+        try {
+            String name = null;
+            long size = 0;
+            if (mDBManager.imageURI.toString().startsWith("file:")) {
+                name = mDBManager.imageURI.getPath();
+                int cut = name.lastIndexOf('/');
+                if (cut != -1) {
+                    name = name.substring(cut + 1);
+                }
+            }else{
+                Log.d("uri",mDBManager.imageURI.toString());
+                Cursor returnCursor = mContext.getContentResolver().query(mDBManager.imageURI,
+                        null, null, null, null);
+                int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                Log.d("nameIndex",nameIndex+"");
+                int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
+                Log.d("sizeIndex",sizeIndex+"");
+                returnCursor.moveToFirst();
+                name = returnCursor.getString(nameIndex);
+                size = returnCursor.getLong(sizeIndex);
+            }
+            String path = mDBManager.imageURI.getPath();
+            String suffix = name.substring(name.indexOf('.'), name.length());
+            FirebaseUser currentUser = mAuth.getCurrentUser();
+            String userid = currentUser.getUid();
+
+            Map<String, Object> values = new HashMap<>();
+            values.put("path", path);
+            values.put("name", name);
+            values.put("suffix", suffix);
+            values.put("size", size);
+            values.put("user_id", userid);
+            TransferModel model = new TransferModel(values);
+            ((MarkerGenerationActivity)mContext).getPhoneNumber();
+
+
+            // upload marker
+            mRequestManager.requestUploadCardMarkerToStorage(model,((MarkerGenerationActivity)mContext).getPhoneNumber(), mDBManager.imageURI, new RequestManager.TransferCallback() {
+                @Override
+                public void onResponse(TransferModel result) {
+                    Map<String, Object> data = new HashMap<>();
+
+                    data.put("marker_id", ""); // new marker
+                    FirebaseUser currentUser = mAuth.getCurrentUser();
+                    String userid = currentUser.getUid();
+                    data.put("user_id", userid);
+                    data.put("file", result.getPath());
+                    data.put("rating", (float) mDBManager.markerRating);
+                    data.put("phone", ((MarkerGenerationActivity)mContext).getPhoneNumber());
+                    data.put("content_id", mDBManager.contentId);
+                    data.put("content_rotation", mDBManager.contentRotation);
+                    data.put("content_scale", mDBManager.contentScale);
+
+                    // update marker database
+                    updateCardDB(data);
+                }
+            });
+
+        } catch (Exception e) {
+            Log.e("TAKE_ALBUM getData failed. ", e.toString());
+            e.printStackTrace();
+        }
     }
 
     private void uploadMarkerImage() {
@@ -184,6 +255,20 @@ public class MarkerUploader {
     private void updateMarkerDB(Map<String, Object> data) {
         MarkerModel marker = new MarkerModel(data);
         mRequestManager.requestSetMarkerInfo(marker, new RequestManager.SuccessCallback() {
+            @Override
+            public void onResponse(boolean success) {
+                materialDialog.dismiss();
+                Toast.makeText(mContext,
+                        "마커를 성공적으로 등록하였습니다.",
+                        Toast.LENGTH_LONG).show();
+                mContext.finish();
+            }
+        });
+    }
+
+    private void updateCardDB(Map<String, Object> data){
+        BusinessCardModel card = new BusinessCardModel(data);
+        mRequestManager.requestSetCardInfo(card, new RequestManager.SuccessCallback() {
             @Override
             public void onResponse(boolean success) {
                 materialDialog.dismiss();

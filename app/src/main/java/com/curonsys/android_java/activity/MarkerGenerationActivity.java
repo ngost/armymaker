@@ -14,12 +14,15 @@ import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.curonsys.android_java.CallBackListener;
 import com.curonsys.android_java.R;
+import com.curonsys.android_java.fragment.CardFragment;
 import com.curonsys.android_java.fragment.ContentsChoiceFragment;
 import com.curonsys.android_java.fragment.ImageChoiceFragment;
 import com.curonsys.android_java.fragment.LocationChoiceFragment;
+import com.curonsys.android_java.fragment.MarkerConfirmForCardFragment;
 import com.curonsys.android_java.fragment.MarkerConfirmFragment;
 import com.curonsys.android_java.util.DBManager;
 import com.curonsys.android_java.util.MarkerUploader;
@@ -33,12 +36,19 @@ public class MarkerGenerationActivity extends AppCompatActivity implements CallB
     Button btn1,btn2;
     Button nextBtn;
     Activity mActivity;
+    String phoneNum;
+
+    boolean markerType = true;
 
     Uri imageUri;
     Uri photoURI, albumURI;
 
     @Override
     public void onSucces(String message) {
+
+    }
+    @Override
+    public void onSucces(String message, boolean isMarker) {
 
     }
 
@@ -85,29 +95,70 @@ public class MarkerGenerationActivity extends AppCompatActivity implements CallB
 
                 switch (current_fragment){
                     case FRAGMENT1:
-                        fragmentTransaction.setCustomAnimations(R.anim.slide_in_left,R.anim.slide_out_right,0,0);
-                        fragmentTransaction.replace(R.id.fragment_simple,new LocationChoiceFragment());
-                        fragmentTransaction.commit();
-                        nextBtn.setTextColor(Color.BLACK);
-                        current_fragment = FRAGMENT2;
+                        if(markerType){
+                            fragmentTransaction.setCustomAnimations(R.anim.slide_in_left,R.anim.slide_out_right,0,0);
+                            fragmentTransaction.replace(R.id.fragment_simple,new LocationChoiceFragment());
+                            fragmentTransaction.commit();
+                            nextBtn.setTextColor(Color.BLACK);
+                            current_fragment = FRAGMENT2;
+                        }else {
+                            fragmentTransaction.setCustomAnimations(R.anim.slide_in_left,R.anim.slide_out_right,0,0);
+                            fragmentTransaction.replace(R.id.fragment_simple,new CardFragment());
+                            fragmentTransaction.commit();
+                            nextBtn.setTextColor(Color.BLACK);
+                            current_fragment = FRAGMENT2;
+                        }
+
                         break;
                     case FRAGMENT2:
-                        fragmentTransaction.setCustomAnimations(R.anim.slide_in_left,R.anim.slide_out_right,0,0);
-                        fragmentTransaction.replace(R.id.fragment_simple,new ContentsChoiceFragment());
-                        fragmentTransaction.commit();
-                        nextBtn.setTextColor(Color.BLACK);
-                        current_fragment = FRAGMENT3;
+                        if(markerType){
+                            fragmentTransaction.setCustomAnimations(R.anim.slide_in_left,R.anim.slide_out_right,0,0);
+                            fragmentTransaction.replace(R.id.fragment_simple,new ContentsChoiceFragment());
+                            fragmentTransaction.commit();
+                            nextBtn.setTextColor(Color.BLACK);
+                            current_fragment = FRAGMENT3;
+                        }else {
+                            CardFragment frag = (CardFragment) fragmentManager.findFragmentById(R.id.fragment_simple);
+                            String phoneNum = frag.getPhoneNumber();
+                            if(phoneNum.equals("")){
+                                Toast.makeText(getApplicationContext(),"입력한 데이터를 확인해주세요.",Toast.LENGTH_SHORT).show();
+                                onDoneBack();
+                            }else {
+                                setPhoneNumber(phoneNum);
+                                fragmentTransaction.setCustomAnimations(R.anim.slide_in_left,R.anim.slide_out_right,0,0);
+                                fragmentTransaction.replace(R.id.fragment_simple,new ContentsChoiceFragment());
+                                fragmentTransaction.commit();
+                                nextBtn.setTextColor(Color.BLACK);
+                                current_fragment = FRAGMENT3;
+                            }
+                        }
+
                         break;
                     case FRAGMENT3:
-                        fragmentTransaction.setCustomAnimations(R.anim.slide_in_left,R.anim.slide_out_right,0,0);
-                        fragmentTransaction.replace(R.id.fragment_simple,new MarkerConfirmFragment());
-                        fragmentTransaction.commit();
-                        nextBtn.setTextColor(Color.BLACK);
-                        current_fragment = FRAGMENT4;
+                        if(markerType){
+                            fragmentTransaction.setCustomAnimations(R.anim.slide_in_left,R.anim.slide_out_right,0,0);
+                            fragmentTransaction.replace(R.id.fragment_simple,new MarkerConfirmFragment());
+                            fragmentTransaction.commit();
+                            nextBtn.setTextColor(Color.BLACK);
+                            current_fragment = FRAGMENT4;
+                        }else {
+                            fragmentTransaction.setCustomAnimations(R.anim.slide_in_left,R.anim.slide_out_right,0,0);
+                            fragmentTransaction.replace(R.id.fragment_simple,new MarkerConfirmForCardFragment());
+                            fragmentTransaction.commit();
+                            nextBtn.setTextColor(Color.BLACK);
+                            current_fragment = FRAGMENT4;
+                        }
+
                         break;
                     case FRAGMENT4:
-                        MarkerUploader markerUploader = new MarkerUploader(mActivity);
-                        markerUploader.start(true);
+                        if(markerType){
+                            MarkerUploader markerUploader = new MarkerUploader(mActivity);
+                            markerUploader.start(true);
+                        }else {
+                            MarkerUploader markerUploader = new MarkerUploader(mActivity);
+                            markerUploader.startCardUpload();
+                        }
+
                     default:
                         break;
 
@@ -147,5 +198,21 @@ public class MarkerGenerationActivity extends AppCompatActivity implements CallB
     @Override
     public void onResume(){
         super.onResume();
+    }
+
+    public void setMarkerType(boolean markerType){
+            this.markerType = markerType;
+    }
+
+    public void setCurrentFragment(int current_fragment){
+        this.current_fragment = current_fragment;
+    }
+
+    public void setPhoneNumber(String phoneNumber){
+        this.phoneNum = phoneNumber;
+    }
+
+    public String getPhoneNumber(){
+        return this.phoneNum;
     }
 }

@@ -20,6 +20,7 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.curonsys.android_java.CallBackListener;
+import com.curonsys.android_java.activity.MarkerGenerationActivity;
 import com.curonsys.android_java.activity.MarkerTestActivity;
 import com.curonsys.android_java.R;
 import com.curonsys.android_java.http.RequestManager;
@@ -45,7 +46,7 @@ import static android.content.ContentValues.TAG;
 
 
 
-public class MarkerConfirmFragment extends Fragment {
+public class MarkerConfirmForCardFragment extends Fragment {
 
     Activity thisContext;
     ContentModel contentModel;
@@ -60,7 +61,7 @@ public class MarkerConfirmFragment extends Fragment {
     MaterialDialog.Builder builder = null;
     MaterialDialog materialDialog = null;
     //TextView tv;
-    TextView userText,ratingText,latitudeText,longitudeText,scaleText,textRotateX,textRotateY,textRotateZ;
+    TextView userText,ratingText,phoneText,scaleText,textRotateX,textRotateY,textRotateZ;
     ImageView markerPreview;
     DBManager dbManager = DBManager.getInstance();
     int textureCount =0;
@@ -70,25 +71,23 @@ public class MarkerConfirmFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_marker_confirm, container, false);
+        View view = inflater.inflate(R.layout.fragment_marker_confirm_for_card, container, false);
         FragmentManager fragmentManager = this.getChildFragmentManager();
 
         //tv = view.findViewById(R.id.markerInfoTv);
-        userText = view.findViewById(R.id.user_id_text_confirm);
-        ratingText = view.findViewById(R.id.marker_rating_text_confirm);
-        latitudeText = view.findViewById(R.id.marker_latitude_text_confirm);
-        longitudeText = view.findViewById(R.id.marker_longitude_text_confirm);
-        markerPreview = view.findViewById(R.id.marker_preview_confirm);
-        scaleText = view.findViewById(R.id.marker_scale_confirm);
-        textRotateX = view.findViewById(R.id.marker_rotatex_confirm);
-        textRotateY = view.findViewById(R.id.marker_rotatey_confirm);
-        textRotateZ = view.findViewById(R.id.marker_rotatez_confirm);
+        userText = view.findViewById(R.id.user_id_text_confirm_card);
+        ratingText = view.findViewById(R.id.marker_rating_text_confirm_card);
+        phoneText = view.findViewById(R.id.marker_phone_text_confirm_card);
+        markerPreview = view.findViewById(R.id.marker_preview_confirm_card);
+        scaleText = view.findViewById(R.id.marker_scale_confirm_card);
+        textRotateX = view.findViewById(R.id.marker_rotatex_confirm_card);
+        textRotateY = view.findViewById(R.id.marker_rotatey_confirm_card);
+        textRotateZ = view.findViewById(R.id.marker_rotatez_confirm_card);
 
 
         userText.setText(dbManager.generatorId);
         ratingText.setText(ratingText.getText()+String.valueOf(dbManager.markerRating));
-        latitudeText.setText(latitudeText.getText()+String.valueOf(dbManager.currentLatitude));
-        longitudeText.setText(longitudeText.getText()+String.valueOf(dbManager.currentLongtitude));
+        phoneText.setText(((MarkerGenerationActivity)getActivity()).getPhoneNumber());
 //        Bitmap bitmap = BitmapFactory.decodeFile(dbManager.imageURI.toString());
 
         markerPreview.setBackground(getResources().getDrawable(R.drawable.round_fg));
@@ -103,7 +102,7 @@ public class MarkerConfirmFragment extends Fragment {
 //                        +dbManager.currentLatitude+",\n"
 //                        +dbManager.contentId+",\n"
 //                        +dbManager.contentName+",\n");
-        Button btn = view.findViewById(R.id.markerTestBtn);
+        Button btn = view.findViewById(R.id.markerTestBtn_card);
 
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -158,6 +157,7 @@ public class MarkerConfirmFragment extends Fragment {
                 callBackListener = (CallBackListener) getActivity();
                 callBackListener.onDoneBack();
             }
+
             @Override
             public void onSucces(String message,boolean isMarker) {
 
@@ -429,14 +429,14 @@ public class MarkerConfirmFragment extends Fragment {
                         callBackListener.onSucces("model");
                     }else if(response.getSuffix().compareTo(".mp4") == 0){
 
-                            String model_file_name = contentModel.getContentName();
-                            Log.d("getModel_name", model_file_name);
-                            try {
-                                FileInputStream file_readed = new FileInputStream(new File(response.getPath()));
-                                modelUrl = saveTemptoMp4(file_readed, contentModel.getContentName(), model_file_name);
-                            } catch (FileNotFoundException e) {
-                                e.printStackTrace();
-                            }
+                        String model_file_name = contentModel.getContentName();
+                        Log.d("getModel_name", model_file_name);
+                        try {
+                            FileInputStream file_readed = new FileInputStream(new File(response.getPath()));
+                            modelUrl = saveTemptoMp4(file_readed, contentModel.getContentName(), model_file_name);
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
 
                         callBackListener.onSucces("model");
                     }

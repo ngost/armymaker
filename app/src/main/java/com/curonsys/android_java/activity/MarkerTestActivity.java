@@ -101,6 +101,10 @@ public class MarkerTestActivity extends ARActivity {
             public void onSucces(String message) {
 
             }
+            @Override
+            public void onSucces(String message,boolean isMarker) {
+
+            }
 
             @Override
             public void onDoneBack() {

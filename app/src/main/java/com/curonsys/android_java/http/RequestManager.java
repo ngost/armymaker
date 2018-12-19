@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.curonsys.android_java.model.BusinessCardModel;
 import com.curonsys.android_java.model.ContentModel;
 import com.curonsys.android_java.model.MarkerModel;
 import com.curonsys.android_java.model.TransferModel;
@@ -98,6 +99,9 @@ public class RequestManager {
 
     public interface MarkerCallback {
         public void onResponse(MarkerModel response);
+    }
+    public interface CardCallback {
+        public void onResponse(BusinessCardModel response);
     }
 
     public interface TransferCallback {
@@ -273,13 +277,24 @@ public class RequestManager {
                 });
     }
 
-    public void requestGetMarkerInfo(String markerid, final MarkerCallback callback) {
-        DocumentReference docRef = mFirestore.collection("markers").document(markerid);
+    public void requestGetMarkerInfo(String marker_id, final MarkerCallback callback) {
+        DocumentReference docRef = mFirestore.collection("markers").document(marker_id);
         docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 Log.d(TAG, documentSnapshot.getId() + " => " + documentSnapshot.getData());
                 MarkerModel model = new MarkerModel(documentSnapshot.getData());
+                callback.onResponse(model);
+            }
+        });
+    }
+    public void requestGetCardInfo(String card_id, final CardCallback callback) {
+        DocumentReference docRef = mFirestore.collection("cards").document(card_id);
+        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                Log.d(TAG, documentSnapshot.getId() + " => " + documentSnapshot.getData());
+                BusinessCardModel model = new BusinessCardModel(documentSnapshot.getData());
                 callback.onResponse(model);
             }
         });
@@ -312,6 +327,35 @@ public class RequestManager {
                     }
                 });
     }
+
+    public void requestSetCardInfo(BusinessCardModel card, final SuccessCallback callback) {
+        DocumentReference docRef;
+        if (card.getMarkerId().isEmpty()) {
+            docRef = mFirestore.collection("cards").document();
+            String docid = docRef.getId();
+            card.setMarkerId(docid);
+
+        } else {
+            docRef = mFirestore.collection("cards").document(card.getMarkerId());
+        }
+
+        docRef.set(card.getData())
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "Marker data successfully written!");
+                        callback.onResponse(true);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error writing marker document", e);
+                        callback.onResponse(false);
+                    }
+                });
+    }
+
 
     public void requestRunTransaction(/* ... */ String userid, final SuccessCallback callback) {
         // temp
@@ -536,8 +580,64 @@ public class RequestManager {
         });
     }
 
+    public void requestUploadCardMarkerToStorage(TransferModel model,String phone, Uri uri, final TransferCallback callback) {
+        StorageReference ref = mStorage.getReference();
+        StorageReference upRef = ref.child("markers/"+"cards" + "/"+phone+"/" + model.getName());
+
+        mUploadTask = upRef.putFile(uri);
+        mUploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                callback.onResponse(null);
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                StorageMetadata meta = taskSnapshot.getMetadata();
+
+                Map<String, Object> values = new HashMap<>();
+                values.put("path", meta.getPath());
+                String url = meta.getPath();
+                String suffix = url.substring(url.indexOf('.'), url.length());
+                values.put("suffix", suffix);
+                values.put("content_type", meta.getContentType());
+                values.put("name", meta.getName());
+                values.put("md5hash", meta.getMd5Hash());
+                values.put("size", meta.getSizeBytes());
+                values.put("creation_time", meta.getCreationTimeMillis());
+                values.put("updated_time", meta.getUpdatedTimeMillis());
+                TransferModel result = new TransferModel(values);
+
+                callback.onResponse(result);
+            }
+        });
+    }
+
     public interface DjangoImageUploadCallback {
         public void onCallback(JSONObject result);
+    }
+
+    public void getCardIdToDjango(String phoneNum, final DjangoImageUploadCallback callback) throws JSONException{
+        RequestParams params = new RequestParams();
+        params.put("phone",phoneNum);
+
+        DjangoClient.get("get_card_id",params,new JsonHttpResponseHandler(){
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response){
+                super.onSuccess(statusCode,headers,response);
+                callback.onCallback(response);
+            }
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                super.onFailure(statusCode, headers, throwable, errorResponse);
+                if (errorResponse == null) {
+                    Log.d("errorResponse", "is null");
+                    callback.onCallback(null);
+                } else {
+                    callback.onCallback(errorResponse);
+                }
+            }
+        });
     }
 
 

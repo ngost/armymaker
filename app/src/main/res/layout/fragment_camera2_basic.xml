@@ -43,17 +43,30 @@
             android:gravity="bottom"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-            <ImageButton
-                android:padding="5dp"
-                android:background="#00000000"
-                android:id="@+id/picture"
-                android:scaleType="fitCenter"
-                android:adjustViewBounds="true"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_gravity="center"
-                android:src="@drawable/scan_btn"
-                android:text="picture" />
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <ImageButton
+                    android:padding="5dp"
+                    android:background="#00000000"
+                    android:id="@+id/picture"
+                    android:scaleType="fitCenter"
+                    android:adjustViewBounds="true"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/scan_btn"
+                    android:text="picture" />
+
+                <Button
+                    android:layout_gravity="right|center"
+                    android:id="@+id/scan_card_btn"
+                    android:text="명함"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    />
+            </FrameLayout>
+
         </LinearLayout>
 
         <com.airbnb.lottie.LottieAnimationView

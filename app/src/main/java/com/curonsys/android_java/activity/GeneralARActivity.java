@@ -1,13 +1,22 @@
 package com.curonsys.android_java.activity;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraManager;
+import android.media.CamcorderProfile;
 import android.net.Uri;
 import android.nfc.Tag;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.os.Vibrator;
 import android.util.Log;
+import android.view.Display;
 import android.view.Window;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.curonsys.android_java.R;
@@ -18,8 +27,13 @@ import java.io.File;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import eu.kudan.kudan.ARActivity;
+import eu.kudan.kudan.ARCamera;
+import eu.kudan.kudan.ARCameraStream;
+import eu.kudan.kudan.ARCameraStreamListener;
 import eu.kudan.kudan.ARImageNode;
 import eu.kudan.kudan.ARImageTrackable;
 import eu.kudan.kudan.ARImageTrackableListener;
@@ -29,10 +43,12 @@ import eu.kudan.kudan.ARMeshNode;
 import eu.kudan.kudan.ARModelImporter;
 import eu.kudan.kudan.ARModelNode;
 import eu.kudan.kudan.ARNode;
+import eu.kudan.kudan.ARRenderer;
 import eu.kudan.kudan.ARTexture2D;
 import eu.kudan.kudan.ARTextureMaterial;
 import eu.kudan.kudan.ARVideoNode;
 import eu.kudan.kudan.ARVideoTexture;
+import eu.kudan.kudan.ARView;
 
 
 public class GeneralARActivity extends ARActivity {
@@ -43,6 +59,11 @@ public class GeneralARActivity extends ARActivity {
     ARModelNode node3d;
     ARImageNode imageNode;
     ARVideoNode videoNode;
+    TextView frame_tv;
+
+    float frame_count = 0;
+    Timer timer;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +79,7 @@ public class GeneralARActivity extends ARActivity {
         setContentView(R.layout.activity_general_ar);
         Log.d("ar_activity","oncreate");
         contentModel = (ContentModel) getIntent().getSerializableExtra("contents_model");
+        frame_tv = findViewById(R.id.frame_tv);
         mDBManager = DBManager.getInstance();
         vibrator = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
 //        Log.d("1",contentModel.getTextures().toString());
@@ -66,8 +88,38 @@ public class GeneralARActivity extends ARActivity {
 //        Log.d("4",mDBManager.contentRotation.toString());
 //        Log.d("5",mDBManager.contentScale+"");
 
+        final Handler handler = new Handler(){
+            public void handleMessage(Message msg){
+                // 원래 하려던 동작 (UI변경 작업 등)
+                frame_count = frame_count/6;
+                String frame_string = String.format("%.2f", frame_count);
+                frame_tv.setText(frame_string);
+                frame_count = 0;
+            }
+        };
 
 
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                Log.d("frame_rate",frame_count+"");
+                Message msg = handler.obtainMessage();
+                handler.sendMessage(msg);
+            }
+        };
+
+        timer = new Timer();
+        timer.schedule(timerTask,0, 6000);
+
+
+        ARCameraStream  arCameraStream = ARCameraStream.getInstance();
+
+        arCameraStream.addListener(new ARCameraStreamListener() {
+            @Override
+            public void didRecieveCameraFrame(byte[] bytes) {
+                frame_count = frame_count+1;
+            }
+        });
     }
 
     @Override
@@ -288,7 +340,22 @@ public class GeneralARActivity extends ARActivity {
 
             @Override
             public void didTrack (ARImageTrackable arImageTrackable){
-
+//                mDisplay = getARView();
+//                Log.d("Frame",mDisplay.toString()+"");
+//                try{
+//                    CameraManager manager = (CameraManager)getSystemService(Context.CAMERA_SERVICE);
+//                    for (String cameraId : manager.getCameraIdList()) {
+//                        int id = Integer.valueOf(cameraId);
+//                        if (CamcorderProfile.hasProfile(id, CamcorderProfile.QUALITY_HIGH_SPEED_LOW)) {
+//                            CamcorderProfile profile = CamcorderProfile.get(id, CamcorderProfile.QUALITY_HIGH_SPEED_LOW);
+//                            int videoFrameRate = profile.videoFrameRate;
+//                            //...
+//
+//                        }
+//                    }
+//                }catch (CameraAccessException e){
+//                    e.printStackTrace();
+//                }
             }
 
             @Override
@@ -299,6 +366,8 @@ public class GeneralARActivity extends ARActivity {
             }
         });
     }
+
+
 
     public void initRoateAndScale(ARNode node){
         node.scaleByUniform(mDBManager.contentScale);
@@ -327,5 +396,11 @@ public class GeneralARActivity extends ARActivity {
                 }
                 break;
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        timer.cancel();
     }
 }

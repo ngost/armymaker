@@ -27,7 +27,6 @@ import com.curonsys.android_java.ContentsListModel;
 import com.curonsys.android_java.CustomAdapter;
 import com.curonsys.android_java.R;
 import com.curonsys.android_java.RecyclerItemClickListener;
-import com.curonsys.android_java.SampleData;
 import com.curonsys.android_java.http.RequestManager;
 import com.curonsys.android_java.model.ContentModel;
 import com.curonsys.android_java.model.UserModel;
@@ -38,14 +37,9 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-import org.json.JSONArray;
-
 import java.util.ArrayList;
 
-import javax.security.auth.callback.Callback;
-
 import static android.content.ContentValues.TAG;
-import static com.curonsys.android_java.SampleData.getFakeContentsList;
 
 /**
  * Created by ijin-yeong on 2018. 5. 21..
@@ -72,8 +66,6 @@ public class ContentsChoiceFragment extends Fragment {
     public static View.OnClickListener myOnClickListener;
     //    private static ArrayList<Integer> removedItems;
     DBManager dbManager = DBManager.getInstance();
-    SampleData sampleData = SampleData.getInstance();
-    private JSONArray contents;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -93,7 +85,6 @@ public class ContentsChoiceFragment extends Fragment {
         // will be implemented..
         // contents = getContentsList();
 
-        contents = getFakeContentsList();
         data = new ArrayList<ContentsListModel>();
 //        initContentsList(data, contents);
 
@@ -244,98 +235,4 @@ public class ContentsChoiceFragment extends Fragment {
 //        }
         return true;
     }
-
-    private void addRemovedItemToList() {
-//        int addItemAtListPosition = 3;
-//        data.add(addItemAtListPosition, new ContentsListModel(
-//                SampleData.nameArray[removedItems.get(0)],
-//                SampleData.versionArray[removedItems.get(0)],
-//                SampleData.id_[removedItems.get(0)],
-//                SampleData.drawableArray[removedItems.get(0)]
-//        ));
-//        adapter.notifyItemInserted(addItemAtListPosition);
-//        removedItems.remove(0);
-    }
-
 }
-/*    public static class MyOnClickListener implements View.OnClickListener {
-
-        private final Context context;
-        CallBackListener callBackListener;
-        DBManager dbManager = DBManager.getInstance();
-        SampleData sampleData = SampleData.getInstance();
-        private MyOnClickListener(Context context,Activity activity) {
-            this.context = context;
-            callBackListener = (CallBackListener) activity;
-        }
-
-        @Override
-        public void onClick(View v) {
-            //removeItem(v);
-            selectedItem(v);
-
-        }
-
-//        private void removeItem(View v) {
-//            int selectedItemPosition = recyclerView.getChildPosition(v);
-//            RecyclerView.ViewHolder viewHolder
-//                    = recyclerView.findViewHolderForPosition(selectedItemPosition);
-//            TextView textViewName
-//                    = (TextView) viewHolder.itemView.findViewById(R.id.textViewName);
-//            String selectedName = (String) textViewName.getText();
-//            int selectedItemId = -1;
-//            for (int i = 0; i < SampleData.nameArray.length; i++) {
-//                if (selectedName.equals(SampleData.nameArray[i])) {
-//                    selectedItemId = SampleData.id_[i];
-//                }
-//            }
-//            removedItems.add(selectedItemId);
-//            data.remove(selectedItemPosition);
-//            adapter.notifyItemRemoved(selectedItemPosition);
-//        }
-
-        private void selectedItem(View v){
-
-            final int selectedItemPosition = recyclerView.getChildPosition(v);
-            RecyclerView.ViewHolder viewHolder
-                    = recyclerView.findViewHolderForPosition(selectedItemPosition);
-            LinearLayout linearLayout = viewHolder.itemView.findViewById(R.id.card_item_linear);
-
-            linearLayout.setBackgroundColor(Color.LTGRAY);
-            final TextView textView = viewHolder.itemView.findViewById(R.id.textViewName);
-
-//            adapter.notifyItemChanged(selectedItemPosition);
-            new MaterialDialog.Builder(this.context)
-                    .title("해당 컨텐츠를 선택하시겠습니까?")
-                    .titleColor(Color.BLACK)
-                    .positiveText("예")
-                    .negativeText("아니요")
-                    .onPositive(new MaterialDialog.SingleButtonCallback() {
-                        @Override
-                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                            Toast.makeText(context,textView.getText()+"",Toast.LENGTH_SHORT).show();
-                            adapter.notifyItemChanged(selectedItemPosition);
-                            //Toast.makeText(context,dbManager.generatorId,Toast.LENGTH_SHORT).show();
-                            dbManager.contentFileName = [selectedItemPosition];
-                            dbManager.contentHasAnimation = sampleData.contentHasAnimation[selectedItemPosition];
-                            dbManager.contentId = sampleData.id_[selectedItemPosition];
-                            dbManager.contentName = sampleData.nameArray[selectedItemPosition];
-                            dbManager.contentTextureFiles = sampleData.contentTextureFiles.get(selectedItemPosition);
-                            dbManager.textureCount = sampleData.contentTextureCount[selectedItemPosition];
-                            dbManager.contentTextureNames = sampleData.contentTextureNames.get(selectedItemPosition);
-                            callBackListener.onDoneBack();
-                        }
-                    })
-                    .onNegative(new MaterialDialog.SingleButtonCallback() {
-                        @Override
-                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                            Toast.makeText(context,"취소",Toast.LENGTH_SHORT).show();
-                            adapter.notifyItemChanged(selectedItemPosition);
-                        }
-                    })
-                    .show();
-        }
-    }
-}
-
-*/

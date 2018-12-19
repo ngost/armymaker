@@ -32,6 +32,11 @@ android {
                 noCompress 'KARMarker'
                 noCompress 'armodel'
             }
+
+    lintOptions {
+        disable "ResourceType"
+    }
+
 }
 
 dependencies {

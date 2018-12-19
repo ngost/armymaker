@@ -270,5 +270,7 @@
     <string name="title_activity_settings">Settings</string>
 
     <string name="title_activity_arcoretest">ARCore Test</string>
+    <string name="card_input_hint">( - 생략) 전화번호를 입력하세요.</string>
+    <string name="card_input_prefill"></string>
 
 </resources>

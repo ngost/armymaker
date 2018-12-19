@@ -58,6 +58,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.text.InputType;
 import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
@@ -67,6 +68,7 @@ import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -75,6 +77,7 @@ import com.airbnb.lottie.utils.LottieValueAnimator;
 import com.curonsys.android_java.CallBackListener;
 import com.curonsys.android_java.R;
 import com.curonsys.android_java.http.RequestManager;
+import com.curonsys.android_java.model.BusinessCardModel;
 import com.curonsys.android_java.model.ContentModel;
 import com.curonsys.android_java.model.MarkerModel;
 import com.curonsys.android_java.model.TransferModel;
@@ -126,6 +129,9 @@ public class Camera2BasicFragment extends Fragment
     private static File capture_path;
     private static String marker_url = "";
     private static String marker_id = "";
+    private static String card_id = "";
+    private String phone_num ="";
+
     private Activity mContext;
     ContentModel contentModel;
     ArrayList<String> textures = new ArrayList<String>();
@@ -510,6 +516,30 @@ public class Camera2BasicFragment extends Fragment
         initLoaction(getActivity());
 
         View view = inflater.inflate(R.layout.fragment_camera2_basic, container, false);
+
+        Button card_btn = view.findViewById(R.id.scan_card_btn);
+        card_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MaterialDialog materialDialog;
+                MaterialDialog.Builder builder;
+                builder = new MaterialDialog.Builder(getActivity())
+                        .title("입력")
+                        .content("명함의 전화번호를 입력하세요.")
+                        .inputType(InputType.TYPE_CLASS_PHONE)
+                        .input(R.string.card_input_hint,R.string.card_input_prefill, new MaterialDialog.InputCallback() {
+                            @Override
+                            public void onInput(MaterialDialog dialog, CharSequence input) {
+                                // Do something
+                                phone_num = input.toString();
+                                uploadCardData(getActivity());
+
+                            }
+                        });
+                materialDialog = builder.build();
+                materialDialog.show();
+            }
+        });
 
 
 
@@ -1018,40 +1048,49 @@ public class Camera2BasicFragment extends Fragment
         }
     }
 
+    public void uploadCardData(Activity activity){
+        RequestManager requestManager = new RequestManager();
+        final DBManager mDBManager = DBManager.getInstance();
+
+        try{
+            requestManager.getCardIdToDjango(phone_num, new RequestManager.DjangoImageUploadCallback() {
+                @Override
+                public void onCallback(JSONObject response) {
+                    try{
+                        marker_url = response.getString("card_url");
+                        card_id = response.getString("card_id");
+                        if(marker_url.equals("null") || marker_id.equals("null")){
+                            showToast("명함을 찾지 못하였습니다...");
+                        }else {
+
+                            //Log.d("contentId_check",contents_id+"111");
+                            callBackListener.onSucces("upload",false);
+                        }
+                    }catch (JSONException e){
+                        e.printStackTrace();
+                        showToast("명함을 찾지 못하였습니다...");
+                    }
+
+                }
+            });
+        }catch (JSONException e) {
+            e.printStackTrace();
+        }catch (NullPointerException e){
+            showToast("서버 연결에 실패하였습니다.");
+            e.printStackTrace();
+        }
+    }
+
     public void uploadData(Activity activity) {
-
-//        showDialog("마커 스캔중...",activity);
-
 
         RequestManager requestManager = new RequestManager();
         final DBManager mDBManager = DBManager.getInstance();
 
-        //위치 정보 가져옴
-
-        //마커 스캔(사진 업로드 및 결과
-
-        //showDialog("마커를 찾는중...");
-
-//        int i=0;
-//        while (i<10000){
-//            i++;
-//            continue;
-//
-//        }
-
-        //og.d("local",mDBManager.currentLocality.toString()+"noting");
-        //Log.d("thorogh",mDBManager.currentThoroughfare.toString());
-
-//        if(!mDBManager.currentLocality.equals("") && !mDBManager.currentThoroughfare.equals("")){
             try{
                 Log.d("request","started");
                 requestManager.uploadImageToDjango(mFile,mDBManager.currentLatitude,mDBManager.currentLongtitude, new RequestManager.DjangoImageUploadCallback() {
                     @Override
                     public void onCallback(JSONObject response) {
-
-//                        materialDialog.dismiss();
-//                        lottie.cancelAnimation();
-//                        lottie.setVisibility(View.GONE);
 
                         new Thread()
                         {
@@ -1065,13 +1104,13 @@ public class Camera2BasicFragment extends Fragment
                         try{
                             Log.d("Image upload Result:",response.toString());
                             marker_url = response.getString("marker_url");
-                            marker_id = response.getString("contents_id");
+                            marker_id = response.getString("marker_id");
                             if(marker_url.equals("null") || marker_id.equals("null")){
                                 showToast("마커를 찾지 못하였습니다...");
                             }else {
 
                                 //Log.d("contentId_check",contents_id+"111");
-                                callBackListener.onSucces("upload");
+                                callBackListener.onSucces("upload",true);
                             }
                         }catch (JSONException e){
                             e.printStackTrace();
@@ -1087,11 +1126,7 @@ public class Camera2BasicFragment extends Fragment
                 e.printStackTrace();
             }
         }
-//        else{
-//            materialDialog.dismiss();
-//            showToast("위치를 가져오지 못하였습니다...");
-//        }
-  //  }
+
     public String getMarkerUrl(){
         return this.marker_url;
     }
@@ -1347,11 +1382,41 @@ public class Camera2BasicFragment extends Fragment
             @Override
             public void onResponse(MarkerModel response) {
                 setContentsInfo(response);
-                callBackListener.onSucces("getMarkerModel");
+                callBackListener.onSucces("getMarkerModel",true);
                 Log.e("marker get","sucess");
             }
         });
     }
+    public void getCardModel(final CallBackListener callBackListener){
+        Log.e("card get","try");
+        RequestManager requestManager = RequestManager.getInstance();
+        requestManager.requestGetCardInfo(card_id, new RequestManager.CardCallback() {
+            @Override
+            public void onResponse(BusinessCardModel response) {
+                setCardContentsInfo(response);
+                callBackListener.onSucces("getMarkerModel",false);
+                Log.e("card get","sucess");
+            }
+        });
+    }
+
+    public void setCardContentsInfo(BusinessCardModel cardModel){
+        String contentId = cardModel.getContentId();
+        ArrayList<Float> contentRota = cardModel.getContentRotation();
+        float contentScale = cardModel.getScale();
+        String markerUrl =  cardModel.getFile();
+        DBManager mDBManager = DBManager.getInstance();
+        mDBManager.contentId = contentId;
+        mDBManager.contentRotation = contentRota;
+        mDBManager.contentScale = contentScale;
+        marker_url = markerUrl;
+
+//        Log.e("c_id",contentId);
+//        Log.e("c_scale",contentScale+"");
+//        Log.e("c_url",markerUrl);
+//        Log.e("c_rotate",contentRota.toString());
+    }
+
 
     public void setContentsInfo(MarkerModel markerModel){
         String contentId = markerModel.getContentId();
@@ -1379,7 +1444,7 @@ public class Camera2BasicFragment extends Fragment
             @Override
             public void onResponse(ContentModel response) {
                 contentModel = response;
-                callBackListener.onSucces("contentsModel");
+                callBackListener.onSucces("contentsModel",true);
             }
         });
     }
@@ -1426,7 +1491,7 @@ public class Camera2BasicFragment extends Fragment
                     //very important
                     textureCount++;
                     if(textureCount == last_count){
-                        callBackListener.onSucces("textures");
+                        callBackListener.onSucces("textures",true);
                     }
 
                 }
@@ -1453,9 +1518,9 @@ public class Camera2BasicFragment extends Fragment
                     // name to be folder name
                     saveBitmaptoJpeg(downBitmap,name,texture_file_name,true);
                     if(hadMarker){
-                        cameraActivity.onSucces("textures");
+                        cameraActivity.onSucces("textures",true);
                     }else {
-                        cameraActivity.onSucces("markerImg");
+                        cameraActivity.onSucces("markerImg",true);
                     }
 
                 }
@@ -1482,19 +1547,19 @@ public class Camera2BasicFragment extends Fragment
                         Log.d("getModel_name", model_file_name);
                         final FileInputStream in = new FileInputStream(response.getPath());
                         saveTemptoJet(in, contentModel.getContentName(), model_file_name);
-                        callBackListener.onSucces("model");
+                        callBackListener.onSucces("model",true);
                     }else if(response.getSuffix().compareTo(".jpg") == 0 || response.getSuffix().compareTo(".png") == 0) {
                         String model_file_name = contentModel.getContentName();
                         Log.d("getModel_name", model_file_name);
                             final FileInputStream in = new FileInputStream(response.getPath());
                             saveModelFile(in, contentModel.getContentName(), model_file_name, response.getSuffix());
-                        callBackListener.onSucces("textures");
+                        callBackListener.onSucces("textures",true);
                     }else if (response.getSuffix().compareTo(".mp4") == 0) {
                         String model_file_name = contentModel.getContentName();
                         Log.d("getModel_name", model_file_name);
                         final FileInputStream in = new FileInputStream(response.getPath());
                         saveModelFile(in, contentModel.getContentName(), model_file_name, response.getSuffix());
-                        callBackListener.onSucces("textures");
+                        callBackListener.onSucces("textures",true);
                     }
                 }catch(FileNotFoundException e){
                     e.printStackTrace();

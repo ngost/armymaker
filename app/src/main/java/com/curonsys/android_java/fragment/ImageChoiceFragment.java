@@ -54,6 +54,8 @@ public class ImageChoiceFragment extends Fragment{
     RatingBar ratingBar;
     Activity mActivity;
     Context thisContext;
+    Button card_btn, marker_btn;
+    boolean state_register = true;
 
     private Bitmap inputImage; // sift 연산시 사용할 이미지
 
@@ -68,6 +70,9 @@ public class ImageChoiceFragment extends Fragment{
         pictureManager = new PictureManager(thisContext);
 
         View view = inflater.inflate(R.layout.fragment_image_choice, container, false);
+        marker_btn = view.findViewById(R.id.marker_select_btn);
+        card_btn = view.findViewById(R.id.card_select_btn);
+
         ratingBar = view.findViewById(R.id.ratingbar);
         showingImg = view.findViewById(R.id.preview_img);
 
@@ -97,6 +102,29 @@ public class ImageChoiceFragment extends Fragment{
                         .show();
             }
         });
+
+
+        marker_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                marker_btn.setBackgroundColor(getResources().getColor(R.color.colorAccent));
+                card_btn.setBackgroundColor(getResources().getColor(R.color.common_google_signin_btn_text_light_disabled));
+                state_register = true;
+                ((MarkerGenerationActivity)getActivity()).setMarkerType(state_register);
+            }
+        });
+
+        card_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                card_btn.setBackgroundColor(getResources().getColor(R.color.colorAccent));
+                marker_btn.setBackgroundColor(getResources().getColor(R.color.common_google_signin_btn_text_light_disabled));
+                state_register = false;
+                ((MarkerGenerationActivity)getActivity()).setMarkerType(state_register);
+            }
+        });
+
+
 
 
         return view;

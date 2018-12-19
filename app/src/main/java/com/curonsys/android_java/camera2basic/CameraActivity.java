@@ -53,56 +53,43 @@ public class CameraActivity extends AppCompatActivity implements CallBackListene
                     .replace(R.id.container, Camera2BasicFragment.newInstance())
                     .commit();
         }
-
-//        CallBackListener callBackListener = new CallBackListener() {
-//            @Override
-//            public void onDoneBack() {
-//
-//            }
-//
-//            @Override
-//            public void onSucces(String message) {
-//
-//                switch (message){
-//                    case "capture":
-//                        Log.d("captured","sucess");
-//                        cameraFrag.initLoaction();
-//                        break;
-//                    case "location":
-//                        cameraFrag.uploadData();
-//                        break;
-//                    case "upload":
-//                        Toast.makeText(getApplicationContext(),cameraFrag.getMarkerUrl(),Toast.LENGTH_LONG).show();
-//                }
-//
-//            }
-//        };
-
-
-
-
     }
 
     @Override
     public void onDoneBack() {
 
     }
+    @Override
+    public void onSucces(String message){
+        //not thing..
+    }
 
     @Override
-    public void onSucces(String message) {
+    public void onSucces(String message, boolean isMarker) {
 
         switch (message){
             case "capture":
                 Log.d("capture","sucess");
 //                cameraFrag.initLoaction(this);
+                if(isMarker){
+                    cameraFrag.uploadData(this);
+                }else {
+                    cameraFrag.uploadCardData(this);
+                }
 
-                cameraFrag.uploadData(this);
                 break;
             case "upload":
                 Log.d("upload","sucess");
 //                Toast.makeText(getApplicationContext(),cameraFrag.getMarkerUrl(),Toast.LENGTH_LONG).show();
-                cameraFrag.showDialog("마커 정보를 가져오는 중입니다...",this);
-                cameraFrag.getMarkerModel((CallBackListener)this);
+
+                if(isMarker){
+                    cameraFrag.showDialog("마커 정보를 가져오는 중입니다...",this);
+                    cameraFrag.getMarkerModel((CallBackListener)this);
+                }else {
+                    cameraFrag.showDialog("명함 정보를 가져오는 중입니다...",this);
+                    cameraFrag.getCardModel((CallBackListener)this);
+                }
+
                 break;
 
             case "getMarkerModel":

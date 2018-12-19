@@ -8,4 +8,5 @@ public interface CallBackListener {
     void onDoneBack();
 
     void onSucces(String message);
+    void onSucces(String message,boolean isMarker);
 }
